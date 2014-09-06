@@ -41,6 +41,10 @@ class GithubView(View):
             if '@{}'.format(gh_user.username) in payload['pull_request']['body']:
                 # If someone was mentioned, send them a slack message.
                 LOG.info('Notifying Slack User {} of PR'.format(gh_user.slack_user.username))
+                LOG.info('Creator {}'.format(creator.name))
+                LOG.info('Action {}'.format(payload['action']))
+                LOG.info('URL {}'.format(payload['pull_request']['url']))
+                LOG.info('Body {}'.format(payload['pull_request']['body']))
                 slack.api_token = os.environ['SLACK_API_TOKEN']
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
