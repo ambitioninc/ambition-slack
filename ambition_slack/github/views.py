@@ -29,22 +29,24 @@ class GithubView(View):
 
         return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN'], slack.users.list()))
 
+    def get_assignee(self, payload):
+        return get_or_none(GithubUser.objects, username=payload['pull_request'].get('assignee', {}).get('login'))
+
     def handle_pull_request(self, payload):
         """
         Handles a new pull request and notifies the proper slack user.
         """
         slack.api_token = os.environ['SLACK_API_TOKEN']
 
-        # Find out who made the pull request
-        creator = GithubUser.objects.get(username=payload['pull_request']['user']['login'])
+        # Find out who made the action and who was assigned
+        sender = GithubUser.objects.get(username=payload['pull_request']['sender']['login'])
+        assignee = self.get_assignee(payload)
 
         action = payload['action']
         if action == 'closed':
             action = 'merged' if payload['pull_request']['merged'] else action
 
         if action in ('opened', 'reopened', 'closed', 'merged'):
-            assignee = get_or_none(GithubUser.objects, username=payload['pull_request']['assignee'])
-
             # Search the body of the pull request for a mention
             github_users = GithubUser.objects.select_related('slack_user')
             for gh_user in github_users:
@@ -52,16 +54,15 @@ class GithubView(View):
                     slack.chat.post_message(
                         '@{}'.format(gh_user.slack_user.username),
                         'Pull request {} by {} - *{}* ({})'.format(
-                            action, creator.slack_user.name, payload['pull_request']['title'].strip(),
+                            action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                             payload['pull_request']['html_url']),
                         username='github')
         elif action in ('assigned', 'unassigned'):
             LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
-            assignee = GithubUser.objects.get(username=payload['pull_request']['assignee'])
             slack.chat.post_message(
                 '@{}'.format(gh_user.slack_user.username),
                 'Pull request {} to you by {} - *{}* ({})'.format(
-                    action, creator.slack_user.name, payload['pull_request']['title'].strip(),
+                    action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                     payload['pull_request']['html_url']),
                 username='github')
 
