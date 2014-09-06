@@ -55,18 +55,16 @@ class GithubView(View):
                 if '@{}'.format(gh_user.username) in payload['pull_request']['body'] or assignee == gh_user:
                     slack.chat.post_message(
                         '@{}'.format(gh_user.slack_user.username),
-                        'Pull request {} by {} - *{}* ({})'.format(
-                            action, sender.slack_user.name, payload['pull_request']['title'].strip(),
-                            payload['pull_request']['html_url']),
+                        'Pull request {} by {} - ({})'.format(
+                            action, sender.slack_user.name, payload['pull_request']['html_url']),
                         username='github')
         elif action in ('assigned',):
             # In this case, a new person was assigned to the PR
             LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
             slack.chat.post_message(
                 '@{}'.format(assignee.slack_user.username),
-                'Pull request {} to you by {} - *{}* ({})'.format(
-                    action, sender.slack_user.name, payload['pull_request']['title'].strip(),
-                    payload['pull_request']['html_url']),
+                'Pull request {} to you by {} - ({})'.format(
+                    action, sender.slack_user.name, payload['pull_request']['html_url']),
                 username='github')
 
     def handle_pull_request_comment_action(self, payload):
@@ -91,7 +89,7 @@ class GithubView(View):
                 LOG.info('posting.. finally')
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
-                    'Comment from {} - ({})'.format(
+                    'Pull request comment from {} - ({})'.format(
                         sender.slack_user.name, payload['issue']['pull_request']['html_url']),
                     username='github')
 
