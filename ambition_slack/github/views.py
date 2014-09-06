@@ -97,6 +97,10 @@ class GithubView(View):
         for p in payload:
             LOG.info(p)
         LOG.info(payload['action'])
+        LOG.info('issue' in payload)
+        LOG.info('pull_request' in payload['issue'])
+        if 'pull_request' not in payload['issue']:
+            LOG.info('pay load issue is {}'.format(payload['issue']))
 
         if 'pull_request' in payload and payload['action'] in ('opened', 'reopened', 'closed', 'merged', 'assigned'):
             self.handle_pull_request_repo_action(payload)
