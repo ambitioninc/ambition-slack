@@ -7,5 +7,14 @@
     "email": "wes.kendall@ambition.com",
     "name": "Wes Kendall"
   }
+},
+{
+    "pk": 2,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "travis.truett", 
+        "email": "travis.truett@ambition.com",
+        "name": "Travis Truett"
+  }
 }
 ]

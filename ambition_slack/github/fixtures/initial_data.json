@@ -6,5 +6,13 @@
     "slack_user": 1, 
     "username": "wesleykendall"
   }
+},
+{
+  "pk": 2, 
+  "model": "github.githubuser", 
+  "fields": {
+    "slack_user": 2, 
+    "username": "travistruett"
+  }
 }
 ]

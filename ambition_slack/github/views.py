@@ -17,17 +17,17 @@ LOG = logging.getLogger('console_logger')
 
 class GithubView(View):
     def get(self, *args, **kwargs):
-        slack.api_token = os.environ['SLACK_API_TOKEN']
+        #slack.api_token = os.environ['SLACK_API_TOKEN']
         #LOG.info('slack token', os.environ['SLACK_API_TOKEN'])
         #LOG.info('slack users', slack.users.list())
 
         #gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
         #LOG.info('github user', gh.get_user())
 
-        slack.api_token = os.environ['SLACK_API_TOKEN']
-        slack.chat.post_message('@wesleykendall', 'New PR!', username='wesleykendall')
+        #slack.api_token = os.environ['SLACK_API_TOKEN']
+        #slack.chat.post_message('@wesleykendall', 'New PR!', username='wesleykendall')
 
-        return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN'], slack.users.list()))
+        return HttpResponse('Github')
 
     def get_assignee(self, payload):
         assignee = payload['pull_request']['assignee']
@@ -41,18 +41,16 @@ class GithubView(View):
         slack.api_token = os.environ['SLACK_API_TOKEN']
 
         # Find out who made the action and who was assigned
-        LOG.info('Getting sender from {}'.format(payload))
         sender = GithubUser.objects.get(username=payload['sender']['login'])
-        LOG.info('Sender {}'.format(sender.username))
         assignee = self.get_assignee(payload)
-        LOG.info('Assignee {}'.format(assignee))
 
         action = payload['action']
         if action == 'closed':
+            # Distinguish if the action was closed or merged
             action = 'merged' if payload['pull_request']['merged'] else action
 
         if action in ('opened', 'reopened', 'closed', 'merged'):
-            # Search the body of the pull request for a mention
+            # In this case, a PR was opened, reopened, closed or merged
             github_users = GithubUser.objects.select_related('slack_user')
             for gh_user in github_users:
                 if '@{}'.format(gh_user.username) in payload['pull_request']['body'] or assignee == gh_user:
@@ -62,7 +60,8 @@ class GithubView(View):
                             action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                             payload['pull_request']['html_url']),
                         username='github')
-        elif action in ('assigned', 'unassigned'):
+        elif action in ('assigned',):
+            # In this case, a new person was assigned to the PR
             LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
             slack.chat.post_message(
                 '@{}'.format(assignee.slack_user.username),
@@ -70,11 +69,22 @@ class GithubView(View):
                     action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                     payload['pull_request']['html_url']),
                 username='github')
+        elif action in ('created',):
+            # In this case, a comment was created on the PR. Notify anyone tagged.
+            github_users = GithubUser.objects.select_related('slack_user')
+            for gh_user in github_users:
+                if '@{}'.format(gh_user.username) in payload['comment']['body'] or assignee == gh_user:
+                    slack.chat.post_message(
+                        '@{}'.format(gh_user.slack_user.username),
+                        'Comment from {} - *{}* ({})'.format(
+                            sender.slack_user.name, payload['pull_request']['title'].strip(),
+                            payload['pull_request']['html_url']),
+                        username='github')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
 
-        if payload.get('pull_request'):  # and payload.get('action') == 'opened':
+        if payload.get('pull_request'):
             self.handle_pull_request(payload)
             LOG.info('New PR opened with body {0}'.format(payload['pull_request']['body']))
 
