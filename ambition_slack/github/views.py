@@ -87,13 +87,11 @@ class GithubView(View):
             LOG.info(payload['issue']['pull_request'])
             if '@{}'.format(gh_user.username) in payload['comment']['body']:
                 LOG.info('posting slack message')
-                LOG.info(payload['issue']['pull_request']['title'].strip())
                 LOG.info(payload['issue']['pull_request']['html_url'])
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
-                    'Comment from {} - *{}* ({})'.format(
-                        sender.slack_user.name, payload['issue']['pull_request']['title'].strip(),
-                        payload['issue']['pull_request']['html_url']),
+                    'Comment from {} - ({})'.format(
+                        sender.slack_user.name, payload['issue']['pull_request']['html_url']),
                     username='github')
 
     def post(self, request, *args, **kwargs):
