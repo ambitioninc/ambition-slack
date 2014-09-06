@@ -87,7 +87,9 @@ class GithubView(View):
             LOG.info(payload['issue']['pull_request'])
             if '@{}'.format(gh_user.username) in payload['comment']['body']:
                 LOG.info('posting slack message')
+                LOG.info('html_url' in payload['issue']['pull_request'])
                 LOG.info(payload['issue']['pull_request']['html_url'])
+                LOG.info('posting.. finally')
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
                     'Comment from {} - ({})'.format(
