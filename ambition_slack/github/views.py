@@ -34,9 +34,9 @@ class GithubView(View):
         if assignee:
             return get_or_none(GithubUser.objects, username=assignee['login'])
 
-    def handle_pull_request(self, payload):
+    def handle_pull_request_repo_action(self, payload):
         """
-        Handles a new pull request and notifies the proper slack user.
+        Handles a new pull request action on a repo (open, close, merge, assign) and notifies the proper slack user.
         """
         slack.api_token = os.environ['SLACK_API_TOKEN']
 
@@ -69,30 +69,38 @@ class GithubView(View):
                     action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                     payload['pull_request']['html_url']),
                 username='github')
-        elif action in ('created',):
-            LOG.info('Pull request comment created')
-            LOG.info(payload['comment'])
-            # In this case, a comment was created on the PR. Notify anyone tagged.
-            github_users = GithubUser.objects.select_related('slack_user')
-            for gh_user in github_users:
-                if '@{}'.format(gh_user.username) in payload['comment']['body']:
-                    slack.chat.post_message(
-                        '@{}'.format(gh_user.slack_user.username),
-                        'Comment from {} - *{}* ({})'.format(
-                            sender.slack_user.name, payload['pull_request']['title'].strip(),
-                            payload['pull_request']['html_url']),
-                        username='github')
+
+    def handle_pull_request_comment(self, payload):
+        """
+        Handles a comment on a pull request and notifies the proper slack user if they were tagged.
+        """
+        LOG.info('Pull request comment created')
+        LOG.info(payload['comment'])
+        sender = GithubUser.objects.get(username=payload['sender']['login'])
+
+        # In this case, a comment was created on the PR. Notify anyone tagged.
+        github_users = GithubUser.objects.select_related('slack_user')
+        for gh_user in github_users:
+            if '@{}'.format(gh_user.username) in payload['comment']['body']:
+                slack.chat.post_message(
+                    '@{}'.format(gh_user.slack_user.username),
+                    'Comment from {} - *{}* ({})'.format(
+                        sender.slack_user.name, payload['issue']['pull_request']['title'].strip(),
+                        payload['issue']['pull_request']['html_url']),
+                    username='github')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
 
-        LOG.info('new payload - {} - {} - {}'.format(payload['action'], 'pull_request' in payload, 'sender' in 'payload'))
+        LOG.info('new payload - {} - {} - {}'.format(payload['action'], 'pull_request' in payload, 'sender' in payload))
 
         for p in payload:
             LOG.info(p)
+        LOG.info(payload['action'])
 
-        if payload.get('pull_request'):
-            self.handle_pull_request(payload)
-            LOG.info('New PR opened with body {0}'.format(payload['pull_request']['body']))
+        if 'pull_request' in payload and payload['action'] in ('opened', 'reopened', 'closed', 'merged', 'assigned'):
+            self.handle_pull_request_repo_action(payload)
+        elif 'issue' in payload and 'pull_request' in payload['issue'] and payload['action'] == 'created':
+            self.handle_pull_request_comment_action(payload)
 
         return HttpResponse()
