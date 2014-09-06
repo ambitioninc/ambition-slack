@@ -20,6 +20,7 @@ LOG = logging.getLogger('console_logger')
 class GithubView(View):
     def get(self, *args, **kwargs):
         slack.api_token = os.environ['SLACK_API_TOKEN']
+        LOG.info('slack token', slack.api_token)
         LOG.info('slack users', slack.users.list())
 
         gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
