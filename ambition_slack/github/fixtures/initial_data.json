@@ -3,7 +3,7 @@
   "pk": 1, 
   "model": "github.githubuser", 
   "fields": {
-    "username": "wesleykendall", 
+    "slack_user": 1, 
     "email": "wes.kendall@ambition.com"
   }
 }

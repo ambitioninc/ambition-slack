@@ -26,6 +26,9 @@ class GithubView(View):
         #gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
         #LOG.info('github user', gh.get_user())
 
+        slack.api_token = os.environ['SLACK_API_TOKEN']
+        slack.chat.post_message('@wesleykendall', 'New PR!', username='wesleykendall')
+
         return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN'], slack.users.list()))
 
     def handle_pull_request(self, payload):
@@ -42,7 +45,10 @@ class GithubView(View):
                 if slack_user:
                     LOG.info('Notifying Slack User {} of PR'.format(slack_user.username))
                     slack.api_token = os.environ['SLACK_API_TOKEN']
-                    slack.chat.post_message(slack_user.username, 'New PR!', username='wesleykendall')
+                    slack.chat.post_message(
+                        '@{}'.format(slack_user.username),
+                        '{} has opened a new pull request for you to review.'.format(gh_email),
+                        username='github')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
