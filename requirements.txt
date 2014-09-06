@@ -4,11 +4,17 @@ South==1.0
 certifi==14.05.14
 dj-database-url==0.2.2
 dj-static==0.0.5
+django-manager-utils==0.6.2
+django-query-builder==0.5.9
+fleming==0.4
 gunicorn==18.0
 psycopg2==2.5.1
 pyslack==0.1.0
 pystache==0.5.4
+python-dateutil==2.2
+pytz==2014.7
 requests==2.4.0
+six==1.7.3
 static==0.4
 static3==0.5.1
 wsgiref==0.1.2
