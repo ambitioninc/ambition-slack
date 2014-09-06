@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 
 class GithubView(View):
     def get(self, request, *args, **kwargs):
-        LOG.info('Github')
+        LOG.error('Github')
         return HttpResponse('Github')
 
     def post(self, request, *args, **kwargs):
