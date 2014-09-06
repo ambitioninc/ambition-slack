@@ -26,7 +26,7 @@ class GithubView(View):
         #gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
         #LOG.info('github user', gh.get_user())
 
-        return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN']), slack.users.list())
+        return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN'], slack.users.list()))
 
     def handle_pull_request(self, payload):
         """
