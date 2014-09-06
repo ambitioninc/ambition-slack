@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.http import HttpResponse
@@ -9,6 +10,9 @@ LOG = logging.getLogger('console_logger')
 
 class GithubView(View):
     def post(self, request, *args, **kwargs):
-        LOG.info('Post')
-        LOG.info(request.__dict__)
+        payload = json.loads(request.body)
+        
+        if 'pull_request' in payload:
+            LOG.info('New PR opened with body {0}'.format(payload['pull_request']['body']))
+
         return HttpResponse()
