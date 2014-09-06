@@ -12,6 +12,7 @@ import slack.users
 from ambition_slack.github.models import GithubUser
 
 
+slack.api_token = os.environ['SLACK_API_TOKEN']
 LOG = logging.getLogger('console_logger')
 
 
@@ -38,8 +39,6 @@ class GithubView(View):
         """
         Handles a new pull request action on a repo (open, close, merge, assign) and notifies the proper slack user.
         """
-        slack.api_token = os.environ['SLACK_API_TOKEN']
-
         # Find out who made the action and who was assigned
         sender = GithubUser.objects.get(username=payload['sender']['login'])
         assignee = self.get_assignee(payload)
