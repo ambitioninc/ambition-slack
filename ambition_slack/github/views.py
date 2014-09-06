@@ -81,7 +81,11 @@ class GithubView(View):
         # In this case, a comment was created on the PR. Notify anyone tagged.
         github_users = GithubUser.objects.select_related('slack_user')
         for gh_user in github_users:
+            LOG.info('checking for {} in {}'.format(gh_user.username, payload['comment']['body']))
             if '@{}'.format(gh_user.username) in payload['comment']['body']:
+                LOG.info('posting slack message')
+                LOG.info(payload['issue']['pull_request']['title'].strip())
+                LOG.info(payload['issue']['pull_request']['html_url'])
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
                     'Comment from {} - *{}* ({})'.format(
