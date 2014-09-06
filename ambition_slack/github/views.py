@@ -52,7 +52,7 @@ class GithubView(View):
             # In this case, a PR was opened, reopened, closed or merged
             github_users = GithubUser.objects.select_related('slack_user')
             for gh_user in github_users:
-                if '@{}'.format(gh_user.username) in payload['pull_request']['body'] or assignee == gh_user:
+                if '@{}'.format(gh_user.username) in payload['pull_request']['body'].lower() or assignee == gh_user:
                     slack.chat.post_message(
                         '@{}'.format(gh_user.slack_user.username),
                         'Pull request {} by {} - ({})'.format(
@@ -75,7 +75,7 @@ class GithubView(View):
         # In this case, a comment was created on the PR. Notify anyone tagged.
         github_users = GithubUser.objects.select_related('slack_user')
         for gh_user in github_users:
-            if '@{}'.format(gh_user.username) in payload['comment']['body']:
+            if '@{}'.format(gh_user.username) in payload['comment']['body'].lower():
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
                     'Pull request comment from {} - ({})'.format(
