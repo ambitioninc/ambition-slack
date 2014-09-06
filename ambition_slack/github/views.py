@@ -41,7 +41,7 @@ class GithubView(View):
         slack.api_token = os.environ['SLACK_API_TOKEN']
 
         # Find out who made the action and who was assigned
-        LOG.info('Getting sender')
+        LOG.info('Getting sender from {}'.format(payload))
         sender = GithubUser.objects.get(username=payload['pull_request']['sender']['login'])
         LOG.info('Sender {}'.format(sender.username))
         assignee = self.get_assignee(payload)
