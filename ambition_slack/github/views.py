@@ -56,6 +56,7 @@ class GithubView(View):
                             payload['pull_request']['html_url']),
                         username='github')
         elif action == 'assigned':
+            LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
             gh_user = GithubUser.objects.get(username=payload['pull_request']['assignee'])
             slack.chat.post_message(
                 '@{}'.format(gh_user.slack_user.username),
