@@ -86,6 +86,8 @@ class GithubView(View):
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
 
+        LOG.info('new payload {}'.format(payload))
+
         if payload.get('pull_request'):
             self.handle_pull_request(payload)
             LOG.info('New PR opened with body {0}'.format(payload['pull_request']['body']))
