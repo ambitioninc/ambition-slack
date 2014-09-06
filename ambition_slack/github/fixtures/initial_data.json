@@ -4,7 +4,7 @@
   "model": "github.githubuser", 
   "fields": {
     "slack_user": 1, 
-    "email": "wes.kendall@ambition.com"
+    "username": "wesleykendall"
   }
 }
 ]
