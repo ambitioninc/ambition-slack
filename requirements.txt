@@ -4,7 +4,6 @@ South==1.0
 certifi==14.05.14
 dj-database-url==0.2.2
 dj-static==0.0.5
-django-manager-utils==0.6.2
 django-query-builder==0.5.9
 fleming==0.4
 gunicorn==18.0

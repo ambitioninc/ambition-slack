@@ -4,14 +4,11 @@ import os
 
 from django.http import HttpResponse
 from django.views.generic.base import View
-from github import Github
-from manager_utils import get_or_none
 import slack
 import slack.chat
 import slack.users
 
 from ambition_slack.github.models import GithubUser
-from ambition_slack.slack.models import SlackUser
 
 
 LOG = logging.getLogger('console_logger')
@@ -35,20 +32,22 @@ class GithubView(View):
         """
         Handles a new pull request and notifies the proper slack user.
         """
-        # Search the body of the pull request for a mention
-        body = payload['pull_request']['body']
-        github_users_emails = GithubUser.objects.values_list('username', 'email')
+        # Find out who made the pull request
+        creator = GithubUser.objects.get(username=payload['pull_request']['user']['login'])
 
-        for gh_user, gh_email in github_users_emails:
-            if '@{}'.format(gh_user) in body:
-                slack_user = get_or_none(SlackUser.objects, email=gh_email)
-                if slack_user:
-                    LOG.info('Notifying Slack User {} of PR'.format(slack_user.username))
-                    slack.api_token = os.environ['SLACK_API_TOKEN']
-                    slack.chat.post_message(
-                        '@{}'.format(slack_user.username),
-                        '{} has opened a new pull request for you to review.'.format(gh_email),
-                        username='github')
+        # Search the body of the pull request for a mention
+        github_users = GithubUser.objects.select_related('slack_user')
+        for gh_user in github_users:
+            if '@{}'.format(gh_user.username) in payload['pull_request']['body']:
+                # If someone was mentioned, send them a slack message.
+                LOG.info('Notifying Slack User {} of PR'.format(gh_user.slack_user.username))
+                slack.api_token = os.environ['SLACK_API_TOKEN']
+                slack.chat.post_message(
+                    '@{}'.format(gh_user.slack_user.username),
+                    '{} {} a new pull request at {}.\n{}'.format(
+                        creator.name, payload['action'], payload['pull_request']['url'],
+                        payload['pull_request']['body']),
+                    username='github')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)

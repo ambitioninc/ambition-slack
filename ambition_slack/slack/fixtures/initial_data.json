@@ -4,7 +4,8 @@
   "model": "slack.slackuser", 
   "fields": {
     "username": "wesleykendall", 
-    "email": "wes.kendall@ambition.com"
+    "email": "wes.kendall@ambition.com",
+    "name": "Wes Kendall"
   }
 }
 ]
