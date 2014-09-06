@@ -88,6 +88,9 @@ class GithubView(View):
 
         LOG.info('new payload - {} - {} - {}'.format(payload['action'], 'pull_request' in payload, 'sender' in 'payload'))
 
+        for p in payload:
+            LOG.info(p)
+
         if payload.get('pull_request'):
             self.handle_pull_request(payload)
             LOG.info('New PR opened with body {0}'.format(payload['pull_request']['body']))
