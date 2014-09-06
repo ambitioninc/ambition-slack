@@ -4,6 +4,7 @@ import os
 
 from django.http import HttpResponse
 from django.views.generic.base import View
+from manager_utils import get_or_none
 import slack
 import slack.chat
 import slack.users
@@ -32,26 +33,36 @@ class GithubView(View):
         """
         Handles a new pull request and notifies the proper slack user.
         """
+        slack.api_token = os.environ['SLACK_API_TOKEN']
+
         # Find out who made the pull request
         creator = GithubUser.objects.get(username=payload['pull_request']['user']['login'])
 
-        # Search the body of the pull request for a mention
-        github_users = GithubUser.objects.select_related('slack_user')
-        for gh_user in github_users:
-            if '@{}'.format(gh_user.username) in payload['pull_request']['body']:
-                # If someone was mentioned, send them a slack message.
-                LOG.info('Notifying Slack User {} of PR'.format(gh_user.slack_user.username))
-                LOG.info('Creator {}'.format(creator.slack_user.name))
-                LOG.info('Action {}'.format(payload['action']))
-                LOG.info('URL {}'.format(payload['pull_request']['url']))
-                LOG.info('Body {}'.format(payload['pull_request']['body']))
-                slack.api_token = os.environ['SLACK_API_TOKEN']
-                slack.chat.post_message(
-                    '@{}'.format(gh_user.slack_user.username),
-                    '{} {} {}.\n*{}*\n_{}_'.format(
-                        creator.slack_user.name, payload['action'], payload['pull_request']['html_url'],
-                        payload['pull_request']['title'], payload['pull_request']['body']),
-                    username='github')
+        action = payload['action']
+        if action == 'closed':
+            action = 'merged' if payload['pull_request']['merged'] else action
+
+        if action in ('opened', 'reopened', 'closed', 'merged'):
+            assignee = get_or_none(GithubUser.objects, username=payload['pull_request']['assignee'])
+
+            # Search the body of the pull request for a mention
+            github_users = GithubUser.objects.select_related('slack_user')
+            for gh_user in github_users:
+                if '@{}'.format(gh_user.username) in payload['pull_request']['body'] or assignee == gh_user:
+                    slack.chat.post_message(
+                        '@{}'.format(gh_user.slack_user.username),
+                        '{} {} *{}* ({})'.format(
+                            creator.slack_user.name, action, payload['pull_request']['title'].strip(),
+                            payload['pull_request']['html_url']),
+                        username='github')
+        elif action == 'assigned':
+            gh_user = GithubUser.objects.get(username=payload['pull_request']['assignee'])
+            slack.chat.post_message(
+                '@{}'.format(gh_user.slack_user.username),
+                '{} {} you to *{}* ({})'.format(
+                    creator.slack_user.name, action, payload['pull_request']['title'].strip(),
+                    payload['pull_request']['html_url']),
+                username='github')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
