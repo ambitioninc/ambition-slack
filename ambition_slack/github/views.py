@@ -41,6 +41,8 @@ class GithubView(View):
                 slack_user = get_or_none(SlackUser.objects, email=gh_email)
                 if slack_user:
                     LOG.info('Notifying Slack User {} of PR'.format(slack_user.username))
+                    slack.api_token = os.environ['SLACK_API_TOKEN']
+                    slack.chat.post_message(slack_user.username, 'New PR!', username='wesleykendall')
 
     def post(self, request, *args, **kwargs):
         payload = json.loads(request.body)
