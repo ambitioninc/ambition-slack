@@ -48,7 +48,7 @@ class GithubView(View):
                 slack.api_token = os.environ['SLACK_API_TOKEN']
                 slack.chat.post_message(
                     '@{}'.format(gh_user.slack_user.username),
-                    '{} {} a pull request at {}.\n{}'.format(
+                    '{} {} {}.\n```{}```'.format(
                         creator.slack_user.name, payload['action'], payload['pull_request']['html_url'],
                         payload['pull_request']['body']),
                     username='github')
