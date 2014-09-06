@@ -34,12 +34,15 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = (
+    'ambition_slack.github',
+    'ambition_slack.slack',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'south',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -59,9 +62,18 @@ WSGI_APPLICATION = 'ambition_slack.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config()
-}
+if os.environ.get('SLACK_DEVELOP'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'mydatabase',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config()
+    }
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/

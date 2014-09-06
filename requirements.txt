@@ -1,7 +1,14 @@
 Django==1.6.5
+PyGithub==1.25.0
+South==1.0
+certifi==14.05.14
 dj-database-url==0.2.2
 dj-static==0.0.5
 gunicorn==18.0
 psycopg2==2.5.1
+pyslack==0.1.0
+pystache==0.5.4
+requests==2.4.0
 static==0.4
+static3==0.5.1
 wsgiref==0.1.2
