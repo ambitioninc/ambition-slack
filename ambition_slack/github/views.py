@@ -84,6 +84,7 @@ class GithubView(View):
             LOG.info('checking for {} in {}'.format(gh_user.username, payload['comment']['body']))
             LOG.info('@{}'.format(gh_user.username))
             LOG.info('@{}'.format(gh_user.username) in payload['comment']['body'])
+            LOG.info(payload['issue']['pull_request'])
             if '@{}'.format(gh_user.username) in payload['comment']['body']:
                 LOG.info('posting slack message')
                 LOG.info(payload['issue']['pull_request']['title'].strip())
