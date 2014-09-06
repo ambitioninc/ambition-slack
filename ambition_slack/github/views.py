@@ -65,7 +65,7 @@ class GithubView(View):
         elif action in ('assigned', 'unassigned'):
             LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
             slack.chat.post_message(
-                '@{}'.format(gh_user.slack_user.username),
+                '@{}'.format(assignee.slack_user.username),
                 'Pull request {} to you by {} - *{}* ({})'.format(
                     action, sender.slack_user.name, payload['pull_request']['title'].strip(),
                     payload['pull_request']['html_url']),
