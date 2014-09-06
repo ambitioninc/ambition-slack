@@ -30,7 +30,9 @@ class GithubView(View):
         return HttpResponse('Done token {0} {1}'.format(os.environ['SLACK_API_TOKEN'], slack.users.list()))
 
     def get_assignee(self, payload):
-        return get_or_none(GithubUser.objects, username=payload['pull_request'].get('assignee', {}).get('login'))
+        assignee = payload['pull_request']['assignee']
+        if assignee:
+            return get_or_none(GithubUser.objects, username=assignee['login'])
 
     def handle_pull_request(self, payload):
         """
@@ -39,8 +41,11 @@ class GithubView(View):
         slack.api_token = os.environ['SLACK_API_TOKEN']
 
         # Find out who made the action and who was assigned
+        LOG.info('Getting sender')
         sender = GithubUser.objects.get(username=payload['pull_request']['sender']['login'])
+        LOG.info('Sender {}'.format(sender.username))
         assignee = self.get_assignee(payload)
+        LOG.info('Assignee {}'.format(assignee))
 
         action = payload['action']
         if action == 'closed':
