@@ -51,17 +51,17 @@ class GithubView(View):
                 if '@{}'.format(gh_user.username) in payload['pull_request']['body'] or assignee == gh_user:
                     slack.chat.post_message(
                         '@{}'.format(gh_user.slack_user.username),
-                        '{} {} *{}* ({})'.format(
-                            creator.slack_user.name, action, payload['pull_request']['title'].strip(),
+                        'Pull request {} by {} - *{}* ({})'.format(
+                            action, creator.slack_user.name, payload['pull_request']['title'].strip(),
                             payload['pull_request']['html_url']),
                         username='github')
-        elif action == 'assigned':
+        elif action in ('assigned', 'unassigned'):
             LOG.info('assigned {}'.format(payload['pull_request']['assignee']))
-            gh_user = GithubUser.objects.get(username=payload['pull_request']['assignee'])
+            assignee = GithubUser.objects.get(username=payload['pull_request']['assignee'])
             slack.chat.post_message(
                 '@{}'.format(gh_user.slack_user.username),
-                '{} {} you to *{}* ({})'.format(
-                    creator.slack_user.name, action, payload['pull_request']['title'].strip(),
+                'Pull request {} to you by {} - *{}* ({})'.format(
+                    action, creator.slack_user.name, payload['pull_request']['title'].strip(),
                     payload['pull_request']['html_url']),
                 username='github')
 
