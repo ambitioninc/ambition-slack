@@ -82,6 +82,8 @@ class GithubView(View):
         github_users = GithubUser.objects.select_related('slack_user')
         for gh_user in github_users:
             LOG.info('checking for {} in {}'.format(gh_user.username, payload['comment']['body']))
+            LOG.info('@{}'.format(gh_user.username))
+            LOG.info('@{}'.format(gh_user.username) in payload['comment']['body'])
             if '@{}'.format(gh_user.username) in payload['comment']['body']:
                 LOG.info('posting slack message')
                 LOG.info(payload['issue']['pull_request']['title'].strip())
