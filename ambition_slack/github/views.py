@@ -70,10 +70,12 @@ class GithubView(View):
                     payload['pull_request']['html_url']),
                 username='github')
         elif action in ('created',):
+            LOG.info('Pull request comment created')
+            LOG.info(payload['comment'])
             # In this case, a comment was created on the PR. Notify anyone tagged.
             github_users = GithubUser.objects.select_related('slack_user')
             for gh_user in github_users:
-                if '@{}'.format(gh_user.username) in payload['comment']['body'] or assignee == gh_user:
+                if '@{}'.format(gh_user.username) in payload['comment']['body']:
                     slack.chat.post_message(
                         '@{}'.format(gh_user.slack_user.username),
                         'Comment from {} - *{}* ({})'.format(
