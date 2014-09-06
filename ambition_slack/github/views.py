@@ -70,7 +70,7 @@ class GithubView(View):
                     payload['pull_request']['html_url']),
                 username='github')
 
-    def handle_pull_request_comment(self, payload):
+    def handle_pull_request_comment_action(self, payload):
         """
         Handles a comment on a pull request and notifies the proper slack user if they were tagged.
         """
