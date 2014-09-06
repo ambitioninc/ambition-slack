@@ -16,5 +16,131 @@
         "email": "travis.truett@ambition.com",
         "name": "Travis Truett"
   }
+},
+{
+    "pk": 3,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "wesokes", 
+        "email": "wes.okes@ambition.com",
+        "name": "Wes Okes"
+  }
+},
+{
+    "pk": 4,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "joshmarlow", 
+        "email": "josh.marlow@ambition.com",
+        "name": "Josh Marlow"
+  }
+},
+{
+    "pk": 5,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "fullam", 
+        "email": "wayne.fullam@ambition.com",
+        "name": "Wayne Fullam"
+  }
+},
+{
+    "pk": 6,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "erikswanson", 
+        "email": "erik.swanson@ambition.com",
+        "name": "Erik Swanson"
+  }
+},
+{
+    "pk": 7,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "brian.trautschold", 
+        "email": "brian.trautschold@ambition.com",
+        "name": "Brian Trautschold"
+  }
+},
+{
+    "pk": 8,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "jared.houghton", 
+        "email": "jared.houghton@ambition.com",
+        "name": "Jared Houghton"
+  }
+},
+{
+    "pk": 9,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "jared.lewis", 
+        "email": "jared.lewis@ambition.com",
+        "name": "Jared Lewis"
+  }
+},
+{
+    "pk": 10,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "micah.hausler", 
+        "email": "micah.hausler@ambition.com",
+        "name": "Micah Hausler"
+  }
+},
+{
+    "pk": 11,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "rob.decarvalho", 
+        "email": "rob.decarvalho@ambition.com",
+        "name": "Rob deCarvalho"
+  }
+},
+{
+    "pk": 12,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "jeremy.boudinet", 
+        "email": "jeremy.boudinet@ambition.com@ambition.com",
+        "name": "Jeremy Boudinet"
+  }
+},
+{
+    "pk": 13,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "noah.cudzilo", 
+        "email": "noah.cudzilo@ambition.com",
+        "name": "Noah Cudzilo"
+  }
+},
+{
+    "pk": 14,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "jeff.mcriffey", 
+        "email": "jeff.mcriffey@ambition.com",
+        "name": "Jeff Mcriffey"
+  }
+},
+{
+    "pk": 15,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "builder.brock", 
+        "email": "builder.brock@ambition.com",
+        "name": "Builder Brock"
+  }
+},
+{
+    "pk": 16,
+    "model": "slack.slackuser", 
+    "fields": {
+        "username": "karmon.french", 
+        "email": "karmon.french@ambition.com",
+        "name": "Karmon French"
+  }
 }
 ]
