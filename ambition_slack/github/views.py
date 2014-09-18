@@ -18,29 +18,19 @@ LOG = logging.getLogger('console_logger')
 
 class GithubView(View):
     def get(self, *args, **kwargs):
-        #slack.api_token = os.environ['SLACK_API_TOKEN']
-        #LOG.info('slack token', os.environ['SLACK_API_TOKEN'])
-        #LOG.info('slack users', slack.users.list())
-
-        #gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
-        #LOG.info('github user', gh.get_user())
-
-        #slack.api_token = os.environ['SLACK_API_TOKEN']
-        #slack.chat.post_message('@wesleykendall', 'New PR!', username='wesleykendall')
-
         return HttpResponse('Github')
 
     def get_assignee(self, payload):
         assignee = payload['pull_request']['assignee']
         if assignee:
-            return get_or_none(GithubUser.objects, username=assignee['login'])
+            return get_or_none(GithubUser.objects, username__iexact=assignee['login'])
 
     def handle_pull_request_repo_action(self, payload):
         """
         Handles a new pull request action on a repo (open, close, merge, assign) and notifies the proper slack user.
         """
         # Find out who made the action and who was assigned
-        sender = GithubUser.objects.get(username=payload['sender']['login'])
+        sender = GithubUser.objects.get(username__iexact=payload['sender']['login'])
         assignee = self.get_assignee(payload)
 
         action = payload['action']
@@ -70,7 +60,7 @@ class GithubView(View):
         """
         Handles a comment on a pull request and notifies the proper slack user if they were tagged.
         """
-        sender = GithubUser.objects.get(username=payload['sender']['login'])
+        sender = GithubUser.objects.get(username__iexact=payload['sender']['login'])
 
         # In this case, a comment was created on the PR. Notify anyone tagged.
         github_users = GithubUser.objects.select_related('slack_user')
