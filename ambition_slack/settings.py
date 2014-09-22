@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_nose',
     'south',
 )
 
@@ -62,13 +63,25 @@ WSGI_APPLICATION = 'ambition_slack.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 if os.environ.get('SLACK_DEVELOP'):
+    # Development - running on a laptop
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': 'mydatabase',
         }
     }
+elif os.environ.get('CIRCLECI'):
+    # Continuous integration - running on Circle CI
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'circle_test',
+            'USER': 'ubuntu',
+            'PASSWORD': '',
+        }
+    }
 else:
+    # Production - running on heroku
     DATABASES = {
         'default': dj_database_url.config()
     }
@@ -129,3 +142,7 @@ LOGGING = {
         }
     }
 }
+
+
+# Testing
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
