@@ -67,6 +67,15 @@ class TestGithubViews(TestCase):
         payload = {'pull_request': {'assignee': {'login': 'jodything'}}}
         self.assertEqual(github_user, GithubView().get_assignee(payload))
 
+    def test_handle_pull_request_repo_action_no_call(self):
+        G(
+            GithubUser, username='jodything',
+            slack_user=F(username='jody_slackuser', name='Jody'))
+        payload = {'sender': {'login': 'jodything'},
+                   'pull_request': {'assignee': {'login': 'jodything'}},
+                   'action': None}
+        self.assertFalse(None, GithubView().handle_pull_request_repo_action(payload))
+
     @patch('ambition_slack.github.views.slack', spec_set=True)
     def test_post_pull_request_action_opened_assigned(self, slack):
         # Setup the scenario
@@ -91,6 +100,7 @@ class TestGithubViews(TestCase):
         self.client.post(
             '/github/', json.dumps(payload),
             content_type='application/json')
+        # COMMENT FROM JOSH: self.assertFalse(slack.chat.post_message.called)
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_with(
             '@test_slackuser',
@@ -204,3 +214,24 @@ class TestGithubViews(TestCase):
             '@test_slackuser',
             'Pull request assigned to you by Jody - ({})'.format(pr_url, username='github'),
             username='github')
+
+    @patch('ambition_slack.github.views.slack', spec_set=True)
+    def test_post_pull_request_action_assigned(self, slack):
+        # Setup the scenario
+        G(
+            GithubUser, username='jodything',
+            slack_user=F(username='jody_slackuser', name='Jody'))
+        G(
+            GithubUser, username='test_user',
+            slack_user=F(username='test_slackuser'))
+        # construct a payload as a dictionary
+        payload = {"action": 'assigned',
+                   "sender": {"login": 'jodything'}, }
+        # create a client
+        # post the payload json to the client
+        self.client.post(
+            '/github/', json.dumps(payload),
+            content_type='application/json')
+        # COMMENT FROM JOSH: self.assertFalse(slack.chat.post_message.called)
+        # Verify that slack posts a message
+        self.assertFalse(slack.chat.post_message.called)
