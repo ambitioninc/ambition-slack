@@ -20,9 +20,9 @@ class GithubViewTest(TestCase):
 
 class ModelsTest(TransactionTestCase):
 
-    '''
+    """
     Tests various aspects of the github models.
-    '''
+    """
     def test_multiple_github_per_slack_user_not_allowed(self):
         # Try to create multiple github users for the same slack user
         slack_user = SlackUser.objects.create(
