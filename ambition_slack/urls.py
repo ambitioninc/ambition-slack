@@ -6,7 +6,8 @@ from ambition_slack.github.views import GithubView
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     # Examples:
     # url(r'^$', 'ambition_slack.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
