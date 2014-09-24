@@ -37,7 +37,6 @@ class GithubView(View):
         if action == 'closed':
             # Distinguish if the action was closed or merged
             action = 'merged' if payload['pull_request']['merged'] else action
-            print "you made it here"
         if action in ('opened', 'reopened', 'closed', 'merged'):
             # In this case, a PR was opened, reopened, closed or merged
             github_users = GithubUser.objects.select_related('slack_user')
