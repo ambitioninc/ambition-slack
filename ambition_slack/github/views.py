@@ -18,16 +18,6 @@ LOG = logging.getLogger('console_logger')
 
 class GithubView(View):
     def get(self, *args, **kwargs):
-        #slack.api_token = os.environ['SLACK_API_TOKEN']
-        #LOG.info('slack token', os.environ['SLACK_API_TOKEN'])
-        #LOG.info('slack users', slack.users.list())
-
-        #gh = Github(os.environ['GITHUB_USER'], os.environ['GITHUB_PASS'])
-        #LOG.info('github user', gh.get_user())
-
-        #slack.api_token = os.environ['SLACK_API_TOKEN']
-        #slack.chat.post_message('@wesleykendall', 'New PR!', username='wesleykendall')
-
         return HttpResponse('Github')
 
     def get_assignee(self, payload):
@@ -47,7 +37,6 @@ class GithubView(View):
         if action == 'closed':
             # Distinguish if the action was closed or merged
             action = 'merged' if payload['pull_request']['merged'] else action
-
         if action in ('opened', 'reopened', 'closed', 'merged'):
             # In this case, a PR was opened, reopened, closed or merged
             github_users = GithubUser.objects.select_related('slack_user')
