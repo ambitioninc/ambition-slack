@@ -20,9 +20,9 @@ class GithubViewTest(TestCase):
 
 class ModelsTest(TransactionTestCase):
 
-    """
+    '''
     Tests various aspects of the github models.
-    """
+    '''
     def test_multiple_github_per_slack_user_not_allowed(self):
         # Try to create multiple github users for the same slack user
         slack_user = SlackUser.objects.create(
@@ -88,12 +88,12 @@ class TestGithubViews(TestCase):
         pr_url = 'http://github.com/pretend/pr'
         # construct a payload as a dictionary
         payload = {
-            "pull_request": {
+            'pull_request': {
                 'assignee': {'login': 'test_user', },
                 'body': '',
                 'html_url': pr_url, },
-            "action": 'opened',
-            "sender": {"login": 'jodything'},
+            'action': 'opened',
+            'sender': {'login': 'jodything'},
         }
         # create a client
         # post the payload json to the client
@@ -119,12 +119,12 @@ class TestGithubViews(TestCase):
         pr_url = 'http://github.com/pretend/pr'
         # construct a payload as a dictionary
         payload = {
-            "pull_request": {
+            'pull_request': {
                 'assignee': None,
                 'body': '@jodything',
                 'html_url': pr_url, },
-            "action": 'opened',
-            "sender": {"login": 'jodything'}, }
+            'action': 'opened',
+            'sender': {'login': 'jodything'}, }
         # create a client & post the payload json to the client
         self.client.post(
             '/github/', json.dumps(payload),
@@ -146,10 +146,10 @@ class TestGithubViews(TestCase):
             slack_user=F(username='test_slackuser'))
         pr_url = 'http://github.com/pretend/pr'
         # construct a payload as a dictionary
-        payload = {"issue": {"pull_request": {'html_url': pr_url, }, },
-                   "action": 'created',
-                   "comment": {'body': '@test_user', },
-                   "sender": {"login": 'jodything', }, }
+        payload = {'issue': {'pull_request': {'html_url': pr_url, }, },
+                   'action': 'created',
+                   'comment': {'body': '@test_user', },
+                   'sender': {'login': 'jodything', }, }
         # create a client & post the payload json to the client
         self.client.post(
             '/github/', json.dumps(payload),
@@ -169,13 +169,13 @@ class TestGithubViews(TestCase):
             slack_user=F(username='jody_slackuser', name='Jody'))
         # construct a payload as a dictionary
         payload = {
-            "pull_request": {
+            'pull_request': {
                 'merged': '',
                 'assignee': None,
                 'body': '@jodything',
                 'html_url': pr_url, },
-            "action": 'closed',
-            "sender": {"login": 'jodything'},
+            'action': 'closed',
+            'sender': {'login': 'jodything'},
         }
         # create a client & post the payload json to the client
         self.client.post(
@@ -199,12 +199,12 @@ class TestGithubViews(TestCase):
         pr_url = 'http://github.com/pretend/pr'
         # construct a payload as a dictionary
         payload = {
-            "pull_request": {
+            'pull_request': {
                 'assignee': {'login': 'test_user', },
                 'body': '@test_slackuser',
                 'html_url': pr_url, },
-            "action": 'assigned',
-            "sender": {"login": 'jodything'}, }
+            'action': 'assigned',
+            'sender': {'login': 'jodything'}, }
         # create a client & post the payload json to the client
         self.client.post(
             '/github/', json.dumps(payload),
@@ -225,13 +225,12 @@ class TestGithubViews(TestCase):
             GithubUser, username='test_user',
             slack_user=F(username='test_slackuser'))
         # construct a payload as a dictionary
-        payload = {"action": 'assigned',
-                   "sender": {"login": 'jodything'}, }
+        payload = {'action': 'assigned',
+                   'sender': {'login': 'jodything'}, }
         # create a client
         # post the payload json to the client
         self.client.post(
             '/github/', json.dumps(payload),
             content_type='application/json')
-        # COMMENT FROM JOSH: self.assertFalse(slack.chat.post_message.called)
         # Verify that slack posts a message
         self.assertFalse(slack.chat.post_message.called)
