@@ -100,7 +100,6 @@ class TestGithubViews(TestCase):
         self.client.post(
             '/github/', json.dumps(payload),
             content_type='application/json')
-        # COMMENT FROM JOSH: self.assertFalse(slack.chat.post_message.called)
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_with(
             '@test_slackuser',
