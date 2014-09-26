@@ -1,21 +1,21 @@
 
 import json
 
-from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
-from django_dynamic_fixture import G, F
 from mock import patch
 
+"""
 from ambition_slack.pagerduty.models import PagerdutyUser
 from ambition_slack.slack.models import SlackUser
 from ambition_slack.pagerduty.views import PagerdutyView
+"""
 
 
 class Test_PagerdutyModels(TransactionTestCase):
 
     """
-    Tests various aspects of the github models.
+    Tests various aspects of the pagerduty models.
 """    """
     def test_multiple_pagerduty_per_slack_user_not_allowed(self):
         # Try to create multiple github users for the same slack user
@@ -29,6 +29,7 @@ class Test_PagerdutyModels(TransactionTestCase):
         pagerduty_user = PagerdutyUser(email='Adam@gothamcity.com')
         self.assertEquals(pagerduty_user.__unicode__(), 'Adam West')
 """
+
 
 class Test_PagerdutyView(TestCase):
     def setUp(self):
@@ -60,7 +61,8 @@ class Test_PagerdutyView(TestCase):
                             "html_url": "https://ambition.pagerduty.com/users/PC3L3KU"},
                         "trigger_summary_data": {
                             "subject": "False Alarm Description Field"},
-                        "trigger_details_html_url": "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
+                        "trigger_details_html_url":
+                            "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
                         "trigger_type": "web_trigger",
                         "last_status_change_on": "2014-09-26T10:02:24-04:00",
                         "last_status_change_by": None,
@@ -113,7 +115,8 @@ class Test_PagerdutyView(TestCase):
                         "assigned_to_user": None,
                         "trigger_summary_data": {
                             "subject": "False Alarm Description Field"},
-                        "trigger_details_html_url": "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
+                        "trigger_details_html_url":
+                            "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
                         "trigger_type": "web_trigger",
                         "last_status_change_on": "2014-09-26T14:03:50Z",
                         "last_status_change_by": {
@@ -156,7 +159,8 @@ class Test_PagerdutyView(TestCase):
                             "html_url": "https://ambition.pagerduty.com/users/PC3L3KU"},
                         "trigger_summary_data": {
                             "subject": "False Alarm Test"},
-                        "trigger_details_html_url": "https://ambition.pagerduty.com/incidents/PL3ZU2L/log_entries/PJFGST7",
+                        "trigger_details_html_url":
+                            "https://ambition.pagerduty.com/incidents/PL3ZU2L/log_entries/PJFGST7",
                         "trigger_type": "web_trigger",
                         "last_status_change_on": "2014-09-26T10:06:19-04:00",
                         "last_status_change_by": None,
@@ -215,7 +219,8 @@ class Test_PagerdutyView(TestCase):
                             "html_url": "https://ambition.pagerduty.com/users/PC3L3KU"},
                         "trigger_summary_data": {
                             "subject": "False Alarm Description Field"},
-                        "trigger_details_html_url": "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
+                        "trigger_details_html_url":
+                            "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
                         "trigger_type": "web_trigger",
                         "last_status_change_on": "2014-09-26T10:02:24-04:00",
                         "last_status_change_by": None,
@@ -271,7 +276,8 @@ class Test_PagerdutyView(TestCase):
                         "assigned_to_user": None,
                         "trigger_summary_data": {
                             "subject": "False Alarm Description Field"},
-                        "trigger_details_html_url": "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
+                        "trigger_details_html_url":
+                            "https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R",
                         "trigger_type": "web_trigger",
                         "last_status_change_on": "2014-09-26T14:03:50Z",
                         "last_status_change_by": {
