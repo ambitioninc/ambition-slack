@@ -29,21 +29,16 @@ class PagerdutyView(View):
                 slack.chat.post_message(
                     '#random',
                     'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                        message['data']['assigned_to_user']['name'],
+                        message['data']['incident']['assigned_to_user']['name'],
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
+
             elif message['type'] == 'incident.resolve':
                 slack.chat.post_message(
                     '#random',
-                    'Pagerduty Ticket assigned to {} is now Resolved. Thank you. Click the link to examine {}'.format(
-                        message['data']['assigned_to_user']['name'],
-                        message['data']['incident']['html_url']),
+                    'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
+                        message['data']['incident']['html_url'],
+                        message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
-            slack.chat.post_message(
-                '#random',
-                request.body,
-                username='pagerduty'
-            )
-
         return HttpResponse()
