@@ -31,7 +31,7 @@ class TestPagerdutyModels(TransactionTestCase):
 """
 
 
-class Test_PagerdutyView(TestCase):
+class TestPagerdutyView(TestCase):
     def setUp(self):
         self.client = Client()
         # this payload includes multiple messages ex.2 triggers and 1 resolve types
