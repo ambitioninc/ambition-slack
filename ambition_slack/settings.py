@@ -35,6 +35,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = (
     'ambition_slack.github',
+    'ambition_slack.pagerduty',
     'ambition_slack.slack',
     'django.contrib.admin',
     'django.contrib.auth',
