@@ -31,7 +31,7 @@ class PagerdutyView(View):
                     for assigned_to in message['data']['incident']['assigned_to']
                 ]
                 slack.chat.post_message(
-                    '#random',
+                    '#support',
                     'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
                         ', '.join(names),
                         message['data']['incident']['html_url'],
@@ -40,7 +40,7 @@ class PagerdutyView(View):
 
             elif message['type'] == 'incident.resolve':
                 slack.chat.post_message(
-                    '#random',
+                    '#support',
                     'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),

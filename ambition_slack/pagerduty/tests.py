@@ -322,7 +322,7 @@ class TestPagerdutyView(TestCase):
         self.assertEquals(
             call_args_list[0],
             call(
-                '#random',
+                '#support',
                 'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
                     'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
                 username='pagerduty')
@@ -346,7 +346,7 @@ class TestPagerdutyView(TestCase):
             '/pagerduty/', json.dumps(self.example_single_trigger_payload),
             content_type='application/json')
         slack.chat.post_message.assert_called_with(
-            '#random',
+            '#support',
             'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
                 'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
             username='pagerduty')
@@ -361,7 +361,7 @@ class TestPagerdutyView(TestCase):
             content_type='application/json')
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_with(
-            '#random',
+            '#support',
             'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
                 inc_dtl_rs_url, trg_dtl_rs_url),
             username='pagerduty')
