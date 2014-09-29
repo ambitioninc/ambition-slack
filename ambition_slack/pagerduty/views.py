@@ -26,10 +26,14 @@ class PagerdutyView(View):
 
         for message in payload['messages']:
             if message['type'] == 'incident.trigger':
+                names = [
+                    assigned_to['object']['name']
+                    for assigned_to in message['data']['incident']['assigned_to']
+                ]
                 slack.chat.post_message(
                     '#random',
                     'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                        message['data']['incident']['assigned_to_user']['name'],
+                        ', '.join(names),
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')

@@ -1,34 +1,31 @@
 
 import json
 
+from django.db import IntegrityError
 from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
-from mock import patch
+from mock import patch, call
 
-"""
 from ambition_slack.pagerduty.models import PagerdutyUser
 from ambition_slack.slack.models import SlackUser
-from ambition_slack.pagerduty.views import PagerdutyView
-"""
 
 
-class TestPagerdutyModels(TransactionTestCase):
+class PagerdutyModelsTest(TransactionTestCase):
 
     """
-    Tests various aspects of the pagerduty models.
-"""    """
+    Tests various aspects of the github models.
+    """
     def test_multiple_pagerduty_per_slack_user_not_allowed(self):
-        # Try to create multiple github users for the same slack user
+        # Try to create multiple pagerduty users for the same slack user
         slack_user = SlackUser.objects.create(
-            email='Adam@gothamcity.com', username='batman', name='Adam')
-        PagerdutyUser.objects.create(slack_user=slack_user, name='Adam West')
+            email='adam@nuhnuhnuhnuh.com', username='batman', name='Adam')
+        PagerdutyUser.objects.create(slack_user=slack_user, email='adam@nuhnuhnuhnuh.com')
         with self.assertRaises(IntegrityError):
-            PagerdutyUser.objects.create(slack_user=slack_user, name='Christian Bale')
+            PagerdutyUser.objects.create(slack_user=slack_user, email='joker@gothamcity.com')
 
-    def test_Pagerduty_unicode(self):
-        pagerduty_user = PagerdutyUser(email='Adam@gothamcity.com')
-        self.assertEquals(pagerduty_user.__unicode__(), 'Adam West')
-"""
+    def test_github_unicode(self):
+        pagerduty_user = PagerdutyUser(email='adam@nuhnuhnuhnuh.com')
+        self.assertEquals(pagerduty_user.__unicode__(), 'adam@nuhnuhnuhnuh.com')
 
 
 class TestPagerdutyView(TestCase):
@@ -135,7 +132,7 @@ class TestPagerdutyView(TestCase):
                     'id': 'f13ab180-4585-11e4-a34d-22000ad9bf74',
                     'created_on': '2014-09-26T14:03:50Z'},
                 {
-                'type': 'incident.trigger',
+                'type': 'incident.escalate',
                 'data': {
                     'incident': {
                         'id': 'PL3ZU2L',
@@ -168,12 +165,12 @@ class TestPagerdutyView(TestCase):
                         'number_of_escalations': 0,
                         'assigned_to': [{
                             'at': '2014-09-26T10:06:19-04:00',
-                                  'object': {
-                                      'id': 'PC3L3KU',
-                                      'name': 'Wes Kendall',
-                                      'email': 'wes.kendall@ambition.com',
-                                      'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU',
-                                      'type': 'user'}},
+                            'object': {
+                                'id': 'PC3L3KU',
+                                'name': 'Wes Kendall',
+                                'email': 'wes.kendall@ambition.com',
+                                'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU',
+                                'type': 'user'}},
                             {
                             'at': '2014-09-26T10:06:19-04:00',
                             'object': {
@@ -307,6 +304,40 @@ class TestPagerdutyView(TestCase):
 # ########### Test post ############
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
+    def test_multi_payload_triggered_resolved_closed(self, slack):
+        inc_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
+        trg_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
+        inc_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
+        trg_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
+
+        # create a client & post the payload json to the client
+        self.client.post(
+            '/pagerduty/', json.dumps(self.example_multiple_payload),
+            content_type='application/json')
+
+        call_args_list = slack.chat.post_message.call_args_list
+        # Verify that the post message was called twice
+        self.assertEquals(len(call_args_list), 2)
+        # Verify that the first call was for a triggered incident
+        self.assertEquals(
+            call_args_list[0],
+            call(
+                '#random',
+                'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
+                    'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
+                username='pagerduty')
+        )
+        self.assertEquals(
+            call_args_list[1],
+            call(
+                '#random',
+                'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
+                    inc_dtl_rs_url, trg_dtl_rs_url),
+                username='pagerduty'
+            )
+        )
+
+    @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
     def test_single_payload_triggered(self, slack):
         inc_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
         trg_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
@@ -317,7 +348,7 @@ class TestPagerdutyView(TestCase):
         slack.chat.post_message.assert_called_with(
             '#random',
             'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                'Wes Kendall', inc_dtl_url, trg_dtl_url),
+                'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
             username='pagerduty')
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
