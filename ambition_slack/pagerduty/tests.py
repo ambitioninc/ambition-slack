@@ -330,7 +330,7 @@ class TestPagerdutyView(TestCase):
         self.assertEquals(
             call_args_list[1],
             call(
-                '#random',
+                '#support',
                 'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
                     inc_dtl_rs_url, trg_dtl_rs_url),
                 username='pagerduty'
