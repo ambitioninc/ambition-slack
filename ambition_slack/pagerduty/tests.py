@@ -58,9 +58,9 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            "description": "Data Processing Error",
-                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
-                            "client_url": "http://axial4.ambition.com"
+                            'description': 'Data Processing Error',
+                            'client': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                            'client_url': 'http://axial4.ambition.com'
                         },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
@@ -115,9 +115,9 @@ class TestPagerdutyView(TestCase):
                             'deleted_at': None},
                         'assigned_to_user': None,
                         'trigger_summary_data': {
-                            "description": "Data Processing Error",
-                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
-                            "client_url": "http://axial4.ambition.com"
+                            'description': 'Data Processing Error',
+                            'client': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                            'client_url': 'http://axial4.ambition.com'
                         },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
@@ -162,9 +162,9 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            "description": "Data Processing Error",
-                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
-                            "client_url": "http://axial4.ambition.com"
+                            'description': 'Data Processing Error',
+                            'client': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                            'client_url': 'http://axial4.ambition.com'
                         },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PL3ZU2L/log_entries/PJFGST7',
@@ -225,9 +225,9 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            "description": "Data Processing Error",
-                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
-                            "client_url": "http://axial4.ambition.com"
+                            'description': 'Data Processing Error',
+                            'client': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                            'client_url': 'http://axial4.ambition.com'
                         },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
@@ -285,9 +285,9 @@ class TestPagerdutyView(TestCase):
                             'deleted_at': None},
                         'assigned_to_user': None,
                         'trigger_summary_data': {
-                            "description": "Data Processing Error",
-                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
-                            "client_url": "http://axial4.ambition.com"
+                            'description': 'Data Processing Error',
+                            'client': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                            'client_url': 'http://axial4.ambition.com'
                         },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
