@@ -58,7 +58,10 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            'subject': 'False Alarm Description Field'},
+                            "description": "Data Processing Error",
+                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
+                            "client_url": "http://axial4.ambition.com"
+                        },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
                         'trigger_type': 'web_trigger',
@@ -112,7 +115,10 @@ class TestPagerdutyView(TestCase):
                             'deleted_at': None},
                         'assigned_to_user': None,
                         'trigger_summary_data': {
-                            'subject': 'False Alarm Description Field'},
+                            "description": "Data Processing Error",
+                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
+                            "client_url": "http://axial4.ambition.com"
+                        },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
                         'trigger_type': 'web_trigger',
@@ -156,7 +162,10 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            'subject': 'False Alarm Test'},
+                            "description": "Data Processing Error",
+                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
+                            "client_url": "http://axial4.ambition.com"
+                        },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PL3ZU2L/log_entries/PJFGST7',
                         'trigger_type': 'web_trigger',
@@ -216,7 +225,10 @@ class TestPagerdutyView(TestCase):
                             'email': 'wes.kendall@ambition.com',
                             'html_url': 'https://ambition.pagerduty.com/users/PC3L3KU'},
                         'trigger_summary_data': {
-                            'subject': 'False Alarm Description Field'},
+                            "description": "Data Processing Error",
+                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
+                            "client_url": "http://axial4.ambition.com"
+                        },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
                         'trigger_type': 'web_trigger',
@@ -273,7 +285,10 @@ class TestPagerdutyView(TestCase):
                             'deleted_at': None},
                         'assigned_to_user': None,
                         'trigger_summary_data': {
-                            'subject': 'False Alarm Description Field'},
+                            "description": "Data Processing Error",
+                            "client": "axial_508dda33bc442dd8e1aaa6254086af7b",
+                            "client_url": "http://axial4.ambition.com"
+                        },
                         'trigger_details_html_url':
                             'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R',
                         'trigger_type': 'web_trigger',
@@ -323,16 +338,18 @@ class TestPagerdutyView(TestCase):
             call_args_list[0],
             call(
                 '#support',
-                'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                    'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
+                'New Pagerduty Ticket assigned to {}. Client {} Incident details - {}. Trigger details - {}'.format(
+                    'Wes Kendall, Josh Marlow, Wayne Fullam', 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                    inc_dtl_url, trg_dtl_url),
                 username='pagerduty')
         )
         self.assertEquals(
             call_args_list[1],
             call(
                 '#support',
-                'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
-                    inc_dtl_rs_url, trg_dtl_rs_url),
+                'Pagerduty Ticket is now resolved, Thank you. Client {} Incident details - {}. Trigger details - {}'
+                .format(
+                    'axial_508dda33bc442dd8e1aaa6254086af7b', inc_dtl_rs_url, trg_dtl_rs_url),
                 username='pagerduty'
             )
         )
@@ -347,8 +364,9 @@ class TestPagerdutyView(TestCase):
             content_type='application/json')
         slack.chat.post_message.assert_called_with(
             '#support',
-            'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                'Wes Kendall, Josh Marlow, Wayne Fullam', inc_dtl_url, trg_dtl_url),
+            'New Pagerduty Ticket assigned to {}. Client {} Incident details - {}. Trigger details - {}'.format(
+                'Wes Kendall, Josh Marlow, Wayne Fullam', 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                inc_dtl_url, trg_dtl_url),
             username='pagerduty')
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
@@ -362,6 +380,6 @@ class TestPagerdutyView(TestCase):
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_with(
             '#support',
-            'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
-                inc_dtl_rs_url, trg_dtl_rs_url),
+            'Pagerduty Ticket is now resolved, Thank you. Client {} Incident details - {}. Trigger details - {}'.format(
+                'axial_508dda33bc442dd8e1aaa6254086af7b', inc_dtl_rs_url, trg_dtl_rs_url),
             username='pagerduty')

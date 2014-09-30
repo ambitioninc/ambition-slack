@@ -32,8 +32,10 @@ class PagerdutyView(View):
                 ]
                 slack.chat.post_message(
                     '#support',
-                    'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
+                    'New Pagerduty Ticket assigned to {}. Client {} Incident details - {}. Trigger details - {}'
+                    .format(
                         ', '.join(names),
+                        message['data']['incident']['trigger_summary_data']['client'],
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
@@ -41,7 +43,9 @@ class PagerdutyView(View):
             elif message['type'] == 'incident.resolve':
                 slack.chat.post_message(
                     '#support',
-                    'Pagerduty Ticket is now Resolved. Thank you. Incident details - {}. Trigger details - {}'.format(
+                    'Pagerduty Ticket is now resolved, Thank you. Client {} Incident details - {}. Trigger details - {}'
+                    .format(
+                        message['data']['incident']['trigger_summary_data']['client'],
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
