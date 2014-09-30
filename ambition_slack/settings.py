@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'ambition_slack.github',
     'ambition_slack.pagerduty',
     'ambition_slack.slack',
+    'ambition_slack.weather',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
