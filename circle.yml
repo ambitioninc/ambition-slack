@@ -1,6 +1,8 @@
 machine:
     environment:
         SLACK_API_TOKEN: __default__
+        SLACK_WEATHER_API_TOKEN: __default__
+
 
 dependencies:
     override:
