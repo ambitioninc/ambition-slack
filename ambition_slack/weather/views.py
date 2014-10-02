@@ -13,5 +13,5 @@ LONGITUDE = -85.308863
 class WeatherView(View):
 
     def get(self, request, *args, **kwargs):
-        weather = weather_summary(latitude, longitude)
+        weather = weather_summary(LATITUDE, LONGITUDE)
         return HttpResponse(weather)
