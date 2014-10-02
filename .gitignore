@@ -1,3 +1,5 @@
 venv/
 mydatabase
 *.pyc
+.coverage
+htmlcov/

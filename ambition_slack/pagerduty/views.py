@@ -26,24 +26,27 @@ class PagerdutyView(View):
 
         for message in payload['messages']:
             if message['type'] == 'incident.trigger':
+                names = [
+                    assigned_to['object']['name']
+                    for assigned_to in message['data']['incident']['assigned_to']
+                ]
                 slack.chat.post_message(
-                    '#random',
-                    'New Pagerduty Ticket assigned to {}. Incident details - {}. Trigger details - {}'.format(
-                        message['data']['assigned_to_user']['name'],
+                    '#support',
+                    'New Pagerduty Ticket assigned to {}. Client {} Incident details - {}. Trigger details - {}'
+                    .format(
+                        ', '.join(names),
+                        message['data']['incident']['trigger_summary_data']['client'],
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
+
             elif message['type'] == 'incident.resolve':
                 slack.chat.post_message(
-                    '#random',
-                    'Pagerduty Ticket assigned to {} is now Resolved. Thank you. Click the link to examine {}'.format(
-                        message['data']['assigned_to_user']['name'],
-                        message['data']['incident']['html_url']),
+                    '#support',
+                    'Pagerduty Ticket is now resolved, Thank you. Client {} Incident details - {}. Trigger details - {}'
+                    .format(
+                        message['data']['incident']['trigger_summary_data']['client'],
+                        message['data']['incident']['html_url'],
+                        message['data']['incident']['trigger_details_html_url']),
                     username='pagerduty')
-            slack.chat.post_message(
-                '#random',
-                request.body,
-                username='pagerduty'
-            )
-
         return HttpResponse()
