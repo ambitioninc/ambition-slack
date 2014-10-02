@@ -1,22 +1,17 @@
-# import json
 import logging
-import os
 
 from django.http import HttpResponse
 from django.views.generic.base import View
 
-import slack
-
-slack.weather_api_token = os.environ['SLACK_WEATHER_API_TOKEN']
+from ambition_slack.weather.weather_summary import weather_summary
 LOG = logging.getLogger('console_logger')
+
+LATITUDE = 35.046772
+LONGITUDE = -85.308863
 
 
 class WeatherView(View):
 
-    def get(self, *args, **kwargs):
-        return HttpResponse('weather')
-
-    def post(self, request, *args, **kwargs):
-
-        # payload = json.loads(request.body)
-        return HttpResponse()
+    def get(self, request, *args, **kwargs):
+        weather = weather_summary(LATITUDE, LONGITUDE)
+        return HttpResponse(weather)
