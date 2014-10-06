@@ -46,6 +46,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nose',
     'django_extensions',
+    'debug_toolbar',
     'south',
 )
 
