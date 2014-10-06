@@ -8,6 +8,10 @@ class WeatherView(View):
 
     def get(self, request, *args, **kwargs):
         location = request.GET['text']
-        lat_long = lat_long_lookup(location)
-        weather = weather_summary(lat_long)
+        if location == '':
+            lat_long = lat_long_lookup('37403')
+            weather = weather_summary(lat_long)
+        else:
+            lat_long = lat_long_lookup(location)
+            weather = weather_summary(lat_long)
         return HttpResponse(weather)
