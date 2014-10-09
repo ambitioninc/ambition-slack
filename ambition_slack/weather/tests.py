@@ -28,7 +28,7 @@ class WeatherViewUnitTest(TestCase):
     @patch('ambition_slack.weather.weather_summary.forecastio')
     def test_return_value(self, forecastio):
         # Setup the scenario
-        summary = "It's raining dummy. Look out the window."
+        summary = 'It is raining dummy. Look out the window.'
         forecastio.load_forecast.return_value.hourly.return_value.summary = summary
 
         # Run the code
