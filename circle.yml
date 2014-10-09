@@ -1,23 +1,15 @@
 machine:
-    environment:
-        SLACK_API_TOKEN: __default__
-<<<<<<< HEAD
-        SLACK_WEATHER_API_TOKEN: __default__
-=======
-        FORECASTIO_API_KEY: __default__
->>>>>>> master
+   environment:
+       SLACK_API_TOKEN: __default__
+       FORECASTIO_API_KEY: __default__
 
 
 dependencies:
-    override:
-        - pip install -r requirements.txt
+   override:
+       - pip install -r requirements.txt
 
 test:
-    override:
-        - flake8 . --max-line-length=120 --max-complexity=10 --exclude='venv,migrations,*.egg'
-<<<<<<< HEAD
-        - coverage run --source="ambition_slack/github, ambition_slack/slack, ambition_slack/pagerduty" --branch --omit="*/migrations/*" manage.py test
-=======
-        - coverage run --source="ambition_slack/github,ambition_slack/slack,ambition_slack/pagerduty,ambition_slack/weather" --branch --omit="*/migrations/*" manage.py test
->>>>>>> master
-        - coverage report --fail-under=100 --show-missing
+   override:
+       - flake8 . --max-line-length=120 --max-complexity=10 --exclude='venv,migrations,*.egg'
+       - coverage run --source="ambition_slack/github,ambition_slack/slack,ambition_slack/pagerduty,ambition_slack/weather" --branch --omit="*/migrations/*" manage.py test
+       - coverage report --fail-under=100 --show-missing
