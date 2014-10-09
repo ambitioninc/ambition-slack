@@ -10,7 +10,7 @@ class WeatherView(View):
     def get(self, request, *args, **kwargs):
         location = request.GET['text']
         user = request.GET['user_name']
-        answers = [
+        responses = [
             'The answer lies in your heart',
             'I do not know',
             'You spelt weather wrong',
@@ -20,7 +20,7 @@ class WeatherView(View):
             'Go away. I do not wish to answer at this time.',
             'The window is 5 feet away. Stop being lazy', ]
         if user == 'jeff.mcriffey':
-            weather = random.choice(answers)
+            weather = random.choice(responses)
         elif location == '':
             lat_long = lat_long_lookup('37403')
             weather = weather_summary(lat_long)
