@@ -8,7 +8,6 @@ class WeatherView(View):
 
     def get(self, request, *args, **kwargs):
         location = request.GET['text']
-        user_name = request.GET['user_name']
         if location == '':
             lat_long = lat_long_lookup('37403')
             weather = weather_summary(lat_long)
