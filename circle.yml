@@ -1,12 +1,12 @@
 machine:
+<<<<<<< HEAD
     environment:
         SLACK_API_TOKEN: __default__
         FORECASTIO_API_KEY: __default__
 
-
 dependencies:
-    override:
-        - pip install -r requirements.txt
+   override:
+       - pip install -r requirements.txt
 
 test:
     override:

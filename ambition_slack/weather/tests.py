@@ -4,15 +4,15 @@ from mock import patch
 from ambition_slack.weather.lat_long_lookup import lat_long_lookup
 
 
-class WeatherViewUnittest(TestCase):
-
+class WeatherViewUnitTest(TestCase):
     @patch('ambition_slack.weather.views.lat_long_lookup', spec_set=True)
     @patch('ambition_slack.weather.views.weather_summary', spec_set=True)
     def test_get_w_no_location(self, mock_weather_summary, mock_lat_long_lookup):
-        # Run the code
+        """
+        Tests the get method in the WeatherView when there is no location provided
+        by the user.
+        """
         self.client.get('/weather/?user_name=batman&text=')
-
-        # Verify expectation
         mock_lat_long_lookup.assert_called_once_with('37403')
         mock_weather_summary.assert_called_once_with(mock_lat_long_lookup.return_value)
 
@@ -47,7 +47,7 @@ class WeatherViewUnittest(TestCase):
         self.assertEqual(lat_long_lookup(37403), (latitude, longitude))
 
     @patch('ambition_slack.weather.weather_summary.forecastio')
-    def test_weather_summary_return_value(self, forecastio):
+    def test_return_value(self, forecastio):
         # Setup the scenario
         summary = 'It is raining dummy. Look out the window.'
         forecastio.load_forecast.return_value.hourly.return_value.summary = summary
@@ -57,3 +57,4 @@ class WeatherViewUnittest(TestCase):
 
         # Verify expectation
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(summary, response.content)
