@@ -1,5 +1,4 @@
 machine:
-<<<<<<< HEAD
     environment:
         SLACK_API_TOKEN: __default__
         FORECASTIO_API_KEY: __default__
