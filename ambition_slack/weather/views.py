@@ -19,7 +19,7 @@ class WeatherView(View):
             'Why do you need to ask?',
             'Go away. I do not wish to answer at this time.',
             'The window is 5 feet away. Stop being lazy',
-            '']
+            'Just Goolge it']
         if user == 'jeff.mcriffey':
             weather = random.choice(responses)
         elif location == '':
