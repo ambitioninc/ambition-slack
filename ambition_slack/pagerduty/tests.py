@@ -329,7 +329,8 @@ class TestPagerdutyView(TestCase):
         t_style = json.dumps(trigger_style)
         resolve_style = [{'fallback': 'pagerduty alert',
                           'color': '228b22',
-                          'fields': [{'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b', 'short': True},
+                          'fields': [{'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                                      'short': True},
                                      {'title': 'Resolved by:', 'value': 'Wes Kendall', 'short': True}]}]
         r_style = json.dumps(resolve_style)
         icon = 'https://pbs.twimg.com/profile_images/482648331181490177/4X_QI2Vu_400x400.png'
