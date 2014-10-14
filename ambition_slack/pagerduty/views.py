@@ -38,7 +38,7 @@ class PagerdutyView(View):
                                              {'title': 'Assigned To:', 'value': multi_names, 'short': True}]}]
                 t_style = json.dumps(trigger_style)
                 slack.chat.post_message(
-                    '@jody',
+                    '#support',
                     '<{}|Incident details> | <{}|Trigger details>'
                     .format(
                         message['data']['incident']['html_url'],
@@ -56,7 +56,7 @@ class PagerdutyView(View):
                                              {'title': 'Resolved by:', 'value': names, 'short': True}]}]
                 r_style = json.dumps(resolve_style)
                 slack.chat.post_message(
-                    '@jody',
+                    '#support',
                     '*Resolved* - <{}|Incident details> | <{}|Trigger details>'
                     .format(
                         message['data']['incident']['html_url'],

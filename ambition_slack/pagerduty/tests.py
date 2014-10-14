@@ -320,12 +320,6 @@ class TestPagerdutyView(TestCase):
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
     def test_multi_payload_triggered_resolved_closed(self, slack):
-        """
-        inc_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
-        trg_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
-        inc_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
-        trg_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
-        """
         trigger_style = [{'fallback': 'pagerduty alert',
                           'color': '#c52929',
                           'fields': [{'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
@@ -351,7 +345,7 @@ class TestPagerdutyView(TestCase):
         self.assertEquals(
             call_args_list[0],
             call(
-                '@jody',
+                '#support',
                 '<{}|Incident details> | <{}|Trigger details>'.format(
                     'https://ambition.pagerduty.com/incidents/PLKJG51',
                     'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
@@ -362,7 +356,7 @@ class TestPagerdutyView(TestCase):
         self.assertEquals(
             call_args_list[1],
             call(
-                '@jody',
+                '#support',
                 '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
                     'https://ambition.pagerduty.com/incidents/PLKJG51',
                     'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
@@ -373,10 +367,6 @@ class TestPagerdutyView(TestCase):
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
     def test_single_payload_triggered(self, slack):
-        """
-        inc_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
-        trg_dtl_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
-        """
         icon = 'https://pbs.twimg.com/profile_images/482648331181490177/4X_QI2Vu_400x400.png'
         trigger_style = [{'fallback': 'pagerduty alert',
                           'color': '#c52929',
@@ -390,7 +380,7 @@ class TestPagerdutyView(TestCase):
             '/pagerduty/', json.dumps(self.example_single_trigger_payload),
             content_type='application/json')
         slack.chat.post_message.assert_called_with(
-            '@jody',
+            '#support',
             '<{}|Incident details> | <{}|Trigger details>'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
                 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
@@ -400,10 +390,6 @@ class TestPagerdutyView(TestCase):
 
     @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
     def test_single_payload_resolved(self, slack):
-        """
-        inc_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51'
-        trg_dtl_rs_url = 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'
-        """
         resolve_style = [{'fallback': 'pagerduty alert',
                           'color': '228b22',
                           'fields': [{'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
@@ -418,7 +404,7 @@ class TestPagerdutyView(TestCase):
             content_type='application/json')
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_with(
-            '@jody',
+            '#support',
             '*Resolved* - <{}|Incident details> | <{}|Trigger details>'
             .format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
