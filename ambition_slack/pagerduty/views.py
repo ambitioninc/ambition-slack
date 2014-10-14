@@ -39,7 +39,7 @@ class PagerdutyView(View):
                 t_style = json.dumps(trigger_style)
                 slack.chat.post_message(
                     '@jody',
-                    'Incident details: ({}) Trigger details: ({})'
+                    '<{}|Incident details> | <{}|Trigger details>'
                     .format(
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
@@ -48,15 +48,20 @@ class PagerdutyView(View):
                     icon_url=icon,)
 
             elif message['type'] == 'incident.resolve':
-                attachments = [{'fallback': 'pagerduty alert', 'color': '228b22'}]
+                names = message['data']['incident']['resolved_by_user']['name']
+                client = message['data']['incident']['trigger_summary_data']['client']
+                resolve_style = [{'fallback': 'pagerduty alert',
+                                  'color': '228b22',
+                                  'fields': [{'title': 'Client', 'value': client, 'short': True},
+                                             {'title': 'Resolved by:', 'value': names, 'short': True}]}]
+                r_style = json.dumps(resolve_style)
                 slack.chat.post_message(
-                    attachments,
-                    '#support',
-                    'Pagerduty Ticket is now resolved, Thank you. Client {} Incident details - {}. Trigger details - {}'
+                    '@jody',
+                    '*Resolved* - <{}|Incident details> | <{}|Trigger details>'
                     .format(
-                        message['data']['incident']['trigger_summary_data']['client'],
                         message['data']['incident']['html_url'],
                         message['data']['incident']['trigger_details_html_url']),
+                    attachments=r_style,
                     username='pagerduty',
-                    icon_url=pd_icon_url)
+                    icon_url=icon)
         return HttpResponse()
