@@ -367,12 +367,12 @@ class TestPagerdutyView(TransactionTestCase):
             'fallback': 'pagerduty alert',
             'color': '#c52929',
             'fields': [{
-                'title': 'Client',
-                'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                'title': 'Assigned To',
+                'value': 'Wes Kendall, Josh Marlow, Wayne Fullam',
                 'short': True
             }, {
-                'title': 'Assigned To:',
-                'value': 'Wes Kendall, Josh Marlow, Wayne Fullam',
+                'title': 'Client',
+                'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
                 'short': True
             }]
         }]
@@ -381,12 +381,12 @@ class TestPagerdutyView(TransactionTestCase):
             'fallback': 'pagerduty alert',
             'color': '228b22',
             'fields': [{
+                'title': 'Resolved By',
+                'value': 'Wes Kendall', 'short': True
+            }, {
                 'title': 'Client',
                 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
                 'short': True
-            }, {
-                'title': 'Resolved by:',
-                'value': 'Wes Kendall', 'short': True
             }]
         }]
         r_style = json.dumps(resolve_style)
@@ -404,7 +404,7 @@ class TestPagerdutyView(TransactionTestCase):
             call_args_list[0],
             call(
                 '#support',
-                '<{}|Incident details> | <{}|Trigger details>'.format(
+                'Data Processing Error (<{}|Incident details> | <{}|Trigger details>)'.format(
                     'https://ambition.pagerduty.com/incidents/PLKJG51',
                     'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
                 attachments=t_style,
@@ -415,7 +415,7 @@ class TestPagerdutyView(TransactionTestCase):
             call_args_list[1],
             call(
                 '#support',
-                '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
+                '*Resolved* Data Processing Error (<{}|Incident details> | <{}|Trigger details>)'.format(
                     'https://ambition.pagerduty.com/incidents/PLKJG51',
                     'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
                 attachments=r_style,
@@ -430,12 +430,12 @@ class TestPagerdutyView(TransactionTestCase):
             'fallback': 'pagerduty alert',
             'color': '#c52929',
             'fields': [{
-                'title': 'Client',
-                'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                'title': 'Assigned To',
+                'value': 'Wes Kendall, Josh Marlow, Wayne Fullam',
                 'short': True
             }, {
-                'title': 'Assigned To:',
-                'value': 'Wes Kendall, Josh Marlow, Wayne Fullam',
+                'title': 'Client',
+                'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
                 'short': True
             }]
         }]
@@ -446,7 +446,7 @@ class TestPagerdutyView(TransactionTestCase):
             content_type='application/json')
         slack.chat.post_message.assert_called_once_with(
             '#support',
-            '<{}|Incident details> | <{}|Trigger details>'.format(
+            'Data Processing Error (<{}|Incident details> | <{}|Trigger details>)'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
                 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
             attachments=t_style,
@@ -459,11 +459,11 @@ class TestPagerdutyView(TransactionTestCase):
             'fallback': 'pagerduty alert',
             'color': '228b22',
             'fields': [{
-                'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                'title': 'Resolved By',
+                'value': 'Wes Kendall',
                 'short': True
             }, {
-                'title': 'Resolved by:',
-                'value': 'Wes Kendall',
+                'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
                 'short': True
             }]
         }]
@@ -476,7 +476,7 @@ class TestPagerdutyView(TransactionTestCase):
         # Verify that slack posts a message
         slack.chat.post_message.assert_called_once_with(
             '#support',
-            '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
+            '*Resolved* Data Processing Error (<{}|Incident details> | <{}|Trigger details>)'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
                 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
             attachments=r_style,
@@ -489,11 +489,11 @@ class TestPagerdutyView(TransactionTestCase):
             'fallback': 'pagerduty alert',
             'color': '228b22',
             'fields': [{
-                'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                'title': 'Resolved By',
+                'value': 'Wes Kendall',
                 'short': True
             }, {
-                'title': 'Resolved by:',
-                'value': 'Wes Kendall',
+                'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
                 'short': True
             }]
         }]
@@ -511,7 +511,7 @@ class TestPagerdutyView(TransactionTestCase):
         # Verify that slack posts only a single message
         slack.chat.post_message.assert_called_once_with(
             '#support',
-            '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
+            '*Resolved* Data Processing Error (<{}|Incident details> | <{}|Trigger details>)'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
                 'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
             attachments=r_style,

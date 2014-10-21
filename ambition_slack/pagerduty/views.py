@@ -16,9 +16,101 @@ LOG = logging.getLogger('console_logger')
 
 
 class PagerdutyView(View):
+    ICON = 'https://pbs.twimg.com/profile_images/482648331181490177/4X_QI2Vu_400x400.png'
 
     def get(self, *args, **kwargs):
         return HttpResponse('Pagerduty')
+
+    def get_client_from_message(self, message):
+        if (
+                'trigger_summary_data' in message['data']['incident'] and
+                'client' in message['data']['incident']['trigger_summary_data']):
+            return message['data']['incident']['trigger_summary_data']['client']
+        else:
+            return None
+
+    def get_description_from_message(self, message):
+        if (
+                'trigger_summary_data' in message['data']['incident'] and
+                'description' in message['data']['incident']['trigger_summary_data']):
+            return message['data']['incident']['trigger_summary_data']['description']
+        else:
+            return None
+
+    def handle_triggered_incident(self, message):
+        """
+        Handles a new pager duty triggered alert.
+        """
+        # Find out who this was assigned to
+        names = ', '.join([
+            assigned_to['object']['name']
+            for assigned_to in message['data']['incident']['assigned_to']
+        ])
+        client = self.get_client_from_message(message)
+        description = self.get_description_from_message(message)
+
+        # Build fields for the custom message attachment
+        custom_message_fields = [{
+            'title': 'Assigned To',
+            'value': names,
+            'short': True
+        }]
+        if client:
+            custom_message_fields.append({
+                'title': 'Client',
+                'value': client,
+                'short': True
+            })
+
+        trigger_style = [{
+            'fallback': 'pagerduty alert',
+            'color': '#c52929',
+            'fields': custom_message_fields,
+        }]
+        t_style = json.dumps(trigger_style)
+
+        message = '{0} (<{1}|Incident details> | <{2}|Trigger details>)'.format(
+            description, message['data']['incident']['html_url'],
+            message['data']['incident']['trigger_details_html_url'])
+
+        slack.chat.post_message('#support', message, attachments=t_style, username='pagerduty', icon_url=self.ICON)
+
+    def handle_resolved_incident(self, message):
+        """
+        Handles a resolved pager duty alert.
+        """
+        resolved_by = None
+        if 'resolved_by_user' in message['data']['incident']:
+            resolved_by = message['data']['incident']['resolved_by_user']['name']
+        client = self.get_client_from_message(message)
+        description = self.get_description_from_message(message)
+
+        # Build fields for the custom message attachment
+        custom_message_fields = []
+        if resolved_by:
+            custom_message_fields.append({
+                'title': 'Resolved By',
+                'value': resolved_by,
+                'short': True
+            })
+        if client:
+            custom_message_fields.append({
+                'title': 'Client',
+                'value': client,
+                'short': True
+            })
+
+        message = '*Resolved* {0} (<{1}|Incident details> | <{2}|Trigger details>)'.format(
+            description, message['data']['incident']['html_url'],
+            message['data']['incident']['trigger_details_html_url'])
+
+        resolve_style = [{
+            'fallback': 'pagerduty alert',
+            'color': '228b22',
+            'fields': custom_message_fields
+        }]
+        r_style = json.dumps(resolve_style)
+        slack.chat.post_message('#support', message, attachments=r_style, username='pagerduty', icon_url=self.ICON)
 
     def post(self, request, *args, **kwargs):
         """
@@ -26,7 +118,6 @@ class PagerdutyView(View):
         """
         payload = json.loads(request.body)
 
-        icon = 'https://pbs.twimg.com/profile_images/482648331181490177/4X_QI2Vu_400x400.png'
         for message in payload['messages']:
             alert_type = message['type']
             incident_uid = message['data']['incident']['id']
@@ -35,54 +126,8 @@ class PagerdutyView(View):
                 continue
 
             if alert_type == 'incident.trigger':
-                names = [
-                    assigned_to['object']['name']
-                    for assigned_to in message['data']['incident']['assigned_to']
-                ]
-                multi_names = ', '.join(names)
-                client = message['data']['incident']['trigger_summary_data']['client']
-                trigger_style = [{
-                    'fallback': 'pagerduty alert',
-                    'color': '#c52929',
-                    'fields': [{
-                        'title': 'Client',
-                        'value': client, 'short': True
-                    }, {
-                        'title': 'Assigned To:',
-                        'value': multi_names, 'short': True
-                    }]
-                }]
-                t_style = json.dumps(trigger_style)
-                slack.chat.post_message(
-                    '#support',
-                    '<{}|Incident details> | <{}|Trigger details>'.format(
-                        message['data']['incident']['html_url'],
-                        message['data']['incident']['trigger_details_html_url']),
-                    attachments=t_style,
-                    username='pagerduty',
-                    icon_url=icon)
-
+                self.handle_triggered_incident(message)
             elif alert_type == 'incident.resolve':
-                names = message['data']['incident']['resolved_by_user']['name']
-                client = message['data']['incident']['trigger_summary_data']['client']
-                resolve_style = [{
-                    'fallback': 'pagerduty alert',
-                    'color': '228b22',
-                    'fields': [{
-                        'title': 'Client',
-                        'value': client, 'short': True
-                    }, {
-                        'title': 'Resolved by:',
-                        'value': names, 'short': True
-                    }]
-                }]
-                r_style = json.dumps(resolve_style)
-                slack.chat.post_message(
-                    '#support',
-                    '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
-                        message['data']['incident']['html_url'],
-                        message['data']['incident']['trigger_details_html_url']),
-                    attachments=r_style,
-                    username='pagerduty',
-                    icon_url=icon)
+                self.handle_resolved_incident(message)
+
         return HttpResponse()
