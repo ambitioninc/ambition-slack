@@ -32,10 +32,17 @@ class PagerdutyView(View):
                 ]
                 multi_names = ', '.join(names)
                 client = message['data']['incident']['trigger_summary_data']['client']
-                trigger_style = [{'fallback': 'pagerduty alert',
-                                  'color': '#c52929',
-                                  'fields': [{'title': 'Client', 'value': client, 'short': True},
-                                             {'title': 'Assigned To:', 'value': multi_names, 'short': True}]}]
+                trigger_style = [{
+                    'fallback': 'pagerduty alert',
+                    'color': '#c52929',
+                    'fields': [{
+                        'title': 'Client',
+                        'value': client, 'short': True
+                    }, {
+                        'title': 'Assigned To:',
+                        'value': multi_names, 'short': True
+                    }]
+                }]
                 t_style = json.dumps(trigger_style)
                 slack.chat.post_message(
                     '#support',

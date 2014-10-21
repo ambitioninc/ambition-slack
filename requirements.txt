@@ -13,7 +13,6 @@ django-nose==1.2
 django-query-builder==0.5.9
 flake8==2.2.3
 fleming==0.4
-gnureadline==6.3.3
 gunicorn==18.0
 httmock==1.2.2
 ipython==2.2.0

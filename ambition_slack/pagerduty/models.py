@@ -9,3 +9,18 @@ class PagerdutyUser(models.Model):
 
     def __unicode__(self):
         return self.email
+
+
+class AlertReceipt(models.Model):
+    """
+    A receipt that a particular type of alert has happened. This allows us to not send
+    duplicate alerts to the chatroom
+    """
+    alert_type = models.CharField(max_length=128, choices=(
+        ('incident.trigger', 'Trigger'),
+        ('incident.resolve', 'Resolve'),
+    ))
+    incident_uid = models.CharField(max_length=128)
+
+    class Meta:
+        unique_together = ('alert_type', 'incident_uid')
