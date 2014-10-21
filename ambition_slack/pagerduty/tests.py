@@ -2,7 +2,7 @@
 import json
 
 from django.db import IntegrityError
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 from django.test.client import Client
 from mock import patch, call
 
@@ -28,7 +28,7 @@ class PagerdutyModelsTest(TransactionTestCase):
         self.assertEquals(pagerduty_user.__unicode__(), 'adam@nuhnuhnuhnuh.com')
 
 
-class TestPagerdutyView(TestCase):
+class TestPagerdutyView(TransactionTestCase):
     def setUp(self):
         self.client = Client()
         # this payload includes multiple messages ex.2 triggers and 1 resolve types
