@@ -444,7 +444,7 @@ class TestPagerdutyView(TestCase):
         self.client.post(
             '/pagerduty/', json.dumps(self.example_single_trigger_payload),
             content_type='application/json')
-        slack.chat.post_message.assert_called_with(
+        slack.chat.post_message.assert_called_once_with(
             '#support',
             '<{}|Incident details> | <{}|Trigger details>'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
@@ -474,7 +474,42 @@ class TestPagerdutyView(TestCase):
             '/pagerduty/', json.dumps(self.example_single_resolve_payload),
             content_type='application/json')
         # Verify that slack posts a message
-        slack.chat.post_message.assert_called_with(
+        slack.chat.post_message.assert_called_once_with(
+            '#support',
+            '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
+                'https://ambition.pagerduty.com/incidents/PLKJG51',
+                'https://ambition.pagerduty.com/incidents/PLKJG51/log_entries/P2S2I8R'),
+            attachments=r_style,
+            username='pagerduty',
+            icon_url=icon)
+
+    @patch('ambition_slack.pagerduty.views.slack', spec_set=True)
+    def test_single_payload_resolved_duplicate(self, slack):
+        resolve_style = [{
+            'fallback': 'pagerduty alert',
+            'color': '228b22',
+            'fields': [{
+                'title': 'Client', 'value': 'axial_508dda33bc442dd8e1aaa6254086af7b',
+                'short': True
+            }, {
+                'title': 'Resolved by:',
+                'value': 'Wes Kendall',
+                'short': True
+            }]
+        }]
+        r_style = json.dumps(resolve_style)
+        icon = 'https://pbs.twimg.com/profile_images/482648331181490177/4X_QI2Vu_400x400.png'
+        # create a client & post the payload json to the client
+        self.client.post(
+            '/pagerduty/', json.dumps(self.example_single_resolve_payload),
+            content_type='application/json')
+        # Post a duplicate message
+        self.client.post(
+            '/pagerduty/', json.dumps(self.example_single_resolve_payload),
+            content_type='application/json')
+
+        # Verify that slack posts only a single message
+        slack.chat.post_message.assert_called_once_with(
             '#support',
             '*Resolved* - <{}|Incident details> | <{}|Trigger details>'.format(
                 'https://ambition.pagerduty.com/incidents/PLKJG51',
