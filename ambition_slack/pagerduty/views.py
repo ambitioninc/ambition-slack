@@ -80,7 +80,7 @@ class PagerdutyView(View):
         Handles a resolved pager duty alert.
         """
         resolved_by = None
-        if 'resolved_by_user' in message['data']['incident']:
+        if message['data']['incident'].get('resolved_by_user'):
             resolved_by = message['data']['incident']['resolved_by_user'].get('name')
         client = self.get_client_from_message(message)
         description = self.get_description_from_message(message)
