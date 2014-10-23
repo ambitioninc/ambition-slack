@@ -81,7 +81,7 @@ class PagerdutyView(View):
         """
         resolved_by = None
         if 'resolved_by_user' in message['data']['incident']:
-            resolved_by = message['data']['incident']['resolved_by_user']['name']
+            resolved_by = message['data']['incident']['resolved_by_user'].get('name')
         client = self.get_client_from_message(message)
         description = self.get_description_from_message(message)
 
