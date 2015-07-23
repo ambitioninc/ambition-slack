@@ -10,7 +10,7 @@ from celery.task.schedules import crontab
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ambition_slack.settings')
 
 app = Celery('ambition_slack')
 
