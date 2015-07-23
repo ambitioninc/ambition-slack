@@ -521,7 +521,7 @@ class TestPagerdutyView(TransactionTestCase):
 
 
 class PagerDutyMessageTests(TestCase):
-    def test_get_client_from_message_with_no_client(self):
+    def test_client_with_no_client(self):
         message = {
             'data': {
                 'incident': {
@@ -530,7 +530,7 @@ class PagerDutyMessageTests(TestCase):
         }
         self.assertIsNone(PagerdutyMessage(message).client)
 
-    def test_get_description_from_message_with_no_description(self):
+    def test_description_with_no_description(self):
         message = {
             'data': {
                 'incident': {
