@@ -22,19 +22,15 @@ class PagerdutyView(View):
         return HttpResponse('Pagerduty')
 
     def get_client_from_message(self, message):
-        if (
-                'trigger_summary_data' in message['data']['incident'] and
-                'client' in message['data']['incident']['trigger_summary_data']):
+        try:
             return message['data']['incident']['trigger_summary_data']['client']
-        else:
+        except KeyError:
             return None
 
     def get_description_from_message(self, message):
-        if (
-                'trigger_summary_data' in message['data']['incident'] and
-                'description' in message['data']['incident']['trigger_summary_data']):
+        try:
             return message['data']['incident']['trigger_summary_data']['description']
-        else:
+        except KeyError:
             return None
 
     def handle_triggered_incident(self, message):
