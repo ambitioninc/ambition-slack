@@ -83,23 +83,10 @@ class PagerdutyView(View):
         """
         Handles a new pager duty triggered alert.
         """
-        # Find out who this was assigned to
-        names = ', '.join(pd_message.assigned_to_list)
-        client = pd_message.client
-        description = pd_message.description
-
         # Build fields for the custom message attachment
-        custom_message_fields = [{
-            'title': 'Assigned To',
-            'value': names,
-            'short': True
-        }]
-        if client:
-            custom_message_fields.append({
-                'title': 'Client',
-                'value': client,
-                'short': True
-            })
+        custom_message_fields = []
+        self._attached_assigned_to_message_field(pd_message, custom_message_fields)
+        self._attach_client_message_field(pd_message, custom_message_fields)
 
         trigger_style = [{
             'fallback': 'pagerduty alert',
@@ -109,7 +96,7 @@ class PagerdutyView(View):
         t_style = json.dumps(trigger_style)
 
         message = '{0} (<{1}|Incident details> | <{2}|Trigger details>)'.format(
-            description, pd_message.incidient_html_url,
+            pd_message.description, pd_message.incidient_html_url,
             pd_message.incidient_trigger_details_html_url)
 
         slack.chat.post_message('#support', message, attachments=t_style, username='pagerduty', icon_url=self.ICON)
@@ -118,27 +105,13 @@ class PagerdutyView(View):
         """
         Handles a resolved pager duty alert.
         """
-        client = pd_message.client
-        description = pd_message.description
-        resolved_by = pd_message.resolved_by
-
         # Build fields for the custom message attachment
         custom_message_fields = []
-        if resolved_by:
-            custom_message_fields.append({
-                'title': 'Resolved By',
-                'value': resolved_by,
-                'short': True
-            })
-        if client:
-            custom_message_fields.append({
-                'title': 'Client',
-                'value': client,
-                'short': True
-            })
+        self._attach_resolved_by_message_field(pd_message, custom_message_fields)
+        self._attach_client_message_field(pd_message, custom_message_fields)
 
         message = '*Resolved* {0} (<{1}|Incident details> | <{2}|Trigger details>)'.format(
-            description, pd_message.incidient_html_url,
+            pd_message.description, pd_message.incidient_html_url,
             pd_message.incidient_trigger_details_html_url)
 
         resolve_style = [{
@@ -167,3 +140,29 @@ class PagerdutyView(View):
                 self.handle_resolved_incident(pd_message)
 
         return HttpResponse()
+
+    def _attach_client_message_field(self, pd_message, message_fields):
+        if pd_message.client:
+            message_fields.append({
+                'title': 'Client',
+                'value': pd_message.client,
+                'short': True
+            })
+        return message_fields
+
+    def _attach_resolved_by_message_field(self, pd_message, message_fields):
+        if pd_message.resolved_by:
+            message_fields.append({
+                'title': 'Resolved By',
+                'value': pd_message.resolved_by,
+                'short': True
+            })
+        return message_fields
+
+    def _attached_assigned_to_message_field(self, pd_message, message_fields):
+        message_fields.append({
+            'title': 'Assigned To',
+            'value': ', '.join(pd_message.assigned_to_list),
+            'short': True
+        })
+        return message_fields
