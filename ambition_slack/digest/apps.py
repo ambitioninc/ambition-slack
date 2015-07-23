@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class DigestConfig(AppConfig):
-    name = 'digest.DigestConfig'
+    name = 'ambition_slack.digest'
     verbose_name = 'Digest'
