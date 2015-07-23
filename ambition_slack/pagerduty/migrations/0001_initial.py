@@ -1,41 +1,40 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'PagerdutyUser'
-        db.create_table(u'pagerduty_pagerdutyuser', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('slack_user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['slack.SlackUser'], unique=True)),
-            ('email', self.gf('django.db.models.fields.TextField')(unique=True)),
-        ))
-        db.send_create_signal(u'pagerduty', ['PagerdutyUser'])
+    dependencies = [
+        ('slack', '0001_initial'),
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'PagerdutyUser'
-        db.delete_table(u'pagerduty_pagerdutyuser')
-
-
-    models = {
-        u'pagerduty.pagerdutyuser': {
-            'Meta': {'object_name': 'PagerdutyUser'},
-            'email': ('django.db.models.fields.TextField', [], {'unique': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slack_user': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['slack.SlackUser']", 'unique': 'True'})
-        },
-        u'slack.slackuser': {
-            'Meta': {'object_name': 'SlackUser'},
-            'email': ('django.db.models.fields.TextField', [], {'unique': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.TextField', [], {}),
-            'username': ('django.db.models.fields.TextField', [], {'unique': 'True'})
-        }
-    }
-
-    complete_apps = ['pagerduty']
+    operations = [
+        migrations.CreateModel(
+            name='AlertReceipt',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('alert_type', models.CharField(max_length=128, choices=[(b'incident.trigger', b'Trigger'), (b'incident.resolve', b'Resolve')])),
+                ('incident_uid', models.CharField(max_length=128)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PagerdutyUser',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('email', models.TextField(unique=True)),
+                ('slack_user', models.OneToOneField(to='slack.SlackUser')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AlterUniqueTogether(
+            name='alertreceipt',
+            unique_together=set([('alert_type', 'incident_uid')]),
+        ),
+    ]
