@@ -1,4 +1,4 @@
-Django==1.6.5
+Django==1.7.9
 PyGithub==1.25.0
 South==1.0
 Werkzeug==0.9.6
