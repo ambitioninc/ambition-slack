@@ -2,11 +2,12 @@
 import json
 
 from django.db import IntegrityError
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 from mock import patch, call
 
 from ambition_slack.pagerduty.models import PagerdutyUser
+from ambition_slack.pagerduty.views import PagerdutyMessage, PagerdutyView
 from ambition_slack.slack.models import SlackUser
 
 
@@ -517,3 +518,58 @@ class TestPagerdutyView(TransactionTestCase):
             attachments=r_style,
             username='pagerduty',
             icon_url=icon)
+
+    def test_attach_client_message_field_when_no_client(self):
+        pd_message = PagerdutyMessage({})
+        self.assertEquals([], PagerdutyView()._attach_client_message_field(pd_message, []))
+
+    def test_attach_resolved_by_message_field_when_no_resolved_by(self):
+        pd_message = PagerdutyMessage({})
+        self.assertEquals([], PagerdutyView()._attach_resolved_by_message_field(pd_message, []))
+
+
+class PagerDutyMessageTests(TestCase):
+    def test_client_when_missing(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyMessage(message).client)
+
+    def test_description_when_missing(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyMessage(message).description)
+
+    def test_resolved_by_when_missing(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyMessage(message).resolved_by)
+
+    def test_incidient_html_url_when_missing(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyMessage(message).incidient_html_url)
+
+    def test_incidient_trigger_details_html_url_when_missing(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyMessage(message).incidient_trigger_details_html_url)
