@@ -1,37 +1,25 @@
 # -*- coding: utf-8 -*-
-from south.utils import datetime_utils as datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
-    depends_on = (
-        ('slack', '0001_initial'),
-    )
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'GithubUser'
-        db.create_table(u'github_githubuser', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('email', self.gf('django.db.models.fields.TextField')()),
-            ('username', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal(u'github', ['GithubUser'])
+    dependencies = [
+        ('slack', '__first__'),
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'GithubUser'
-        db.delete_table(u'github_githubuser')
-
-
-    models = {
-        u'github.githubuser': {
-            'Meta': {'object_name': 'GithubUser'},
-            'email': ('django.db.models.fields.TextField', [], {}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'username': ('django.db.models.fields.TextField', [], {})
-        }
-    }
-
-    complete_apps = ['github']
+    operations = [
+        migrations.CreateModel(
+            name='GithubUser',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('username', models.TextField(unique=True)),
+                ('slack_user', models.OneToOneField(to='slack.SlackUser')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]
