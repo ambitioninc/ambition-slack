@@ -34,6 +34,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = (
+    'ambition_slack.digest',
     'ambition_slack.github',
     'ambition_slack.pagerduty',
     'ambition_slack.slack',
