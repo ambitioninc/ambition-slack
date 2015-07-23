@@ -148,3 +148,7 @@ LOGGING = {
 
 # Testing
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+# Celery configuration
+BROKER_URL = os.environ['REDIS_URL']
+CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
