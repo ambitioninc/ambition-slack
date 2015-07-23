@@ -2,6 +2,7 @@ machine:
     environment:
         SLACK_API_TOKEN: __default__
         FORECASTIO_API_KEY: __default__
+        REDIS_URL: __default__
 
 dependencies:
    override:
