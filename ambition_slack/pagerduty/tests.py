@@ -7,6 +7,7 @@ from django.test.client import Client
 from mock import patch, call
 
 from ambition_slack.pagerduty.models import PagerdutyUser
+from ambition_slack.pagerduty.views import PagerdutyView
 from ambition_slack.slack.models import SlackUser
 
 
@@ -517,3 +518,21 @@ class TestPagerdutyView(TransactionTestCase):
             attachments=r_style,
             username='pagerduty',
             icon_url=icon)
+
+    def test_get_client_from_message_with_no_client(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyView().get_client_from_message(message))
+
+    def test_get_description_from_message_with_no_description(self):
+        message = {
+            'data': {
+                'incident': {
+                },
+            },
+        }
+        self.assertIsNone(PagerdutyView().get_description_from_message(message))
