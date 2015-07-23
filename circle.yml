@@ -11,4 +11,4 @@ test:
     override:
         - flake8 . --max-line-length=120 --max-complexity=10 --exclude='venv,migrations,*.egg'
         - coverage run --source="ambition_slack/github,ambition_slack/slack,ambition_slack/pagerduty,ambition_slack/weather" --branch --omit="*/migrations/*,*/south_migrations/*" manage.py test
-        # - coverage report --fail-under=100 --show-missing
+        - coverage report --fail-under=100 --show-missing
