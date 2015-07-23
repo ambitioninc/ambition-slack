@@ -10,6 +10,7 @@ def generate_digest():
 
 
 @periodic_task(
-    run_every=(crontab(hour="20", minute="0,15,20,30,35,40,45,50", day_of_week="1,2,3,4,5")), ignore_result=True)
+    run_every=(crontab(hour="*", minute="0,10,15,20,25,30,35,40,45,50,55", day_of_week="1,2,3,4,5")),
+    ignore_result=True)
 def this_is_a_test():
     EmailMultiAlternatives('Celery test', 'This is a test', '', ['joshmarlow@gmail.com']).send()
