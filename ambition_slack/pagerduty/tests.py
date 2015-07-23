@@ -2,12 +2,12 @@
 import json
 
 from django.db import IntegrityError
-from django.test import TransactionTestCase
+from django.test import TestCase, TransactionTestCase
 from django.test.client import Client
 from mock import patch, call
 
 from ambition_slack.pagerduty.models import PagerdutyUser
-from ambition_slack.pagerduty.views import PagerdutyView
+from ambition_slack.pagerduty.views import PagerdutyMessage
 from ambition_slack.slack.models import SlackUser
 
 
@@ -519,6 +519,8 @@ class TestPagerdutyView(TransactionTestCase):
             username='pagerduty',
             icon_url=icon)
 
+
+class PagerDutyMessageTests(TestCase):
     def test_get_client_from_message_with_no_client(self):
         message = {
             'data': {
@@ -526,7 +528,7 @@ class TestPagerdutyView(TransactionTestCase):
                 },
             },
         }
-        self.assertIsNone(PagerdutyView().get_client_from_message(message))
+        self.assertIsNone(PagerdutyMessage(message).client)
 
     def test_get_description_from_message_with_no_description(self):
         message = {
@@ -535,4 +537,4 @@ class TestPagerdutyView(TransactionTestCase):
                 },
             },
         }
-        self.assertIsNone(PagerdutyView().get_description_from_message(message))
+        self.assertIsNone(PagerdutyMessage(message).description)
