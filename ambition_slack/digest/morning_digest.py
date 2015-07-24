@@ -1,4 +1,5 @@
 import logging
+import os
 
 import slack
 import slack.chat
@@ -8,6 +9,9 @@ from ambition_slack.slack.models import SlackUser
 
 
 LOG = logging.getLogger(__name__)
+
+
+slack.api_token = os.environ['SLACK_API_TOKEN']
 
 
 class MorningDigest(object):
