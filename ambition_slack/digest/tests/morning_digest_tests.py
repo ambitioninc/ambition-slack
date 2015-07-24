@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django_dynamic_fixture import G
 from mock import call, patch
@@ -16,24 +18,22 @@ class MorningDigestTests(TestCase):
     def test_channel_name(self):
         self.assertEquals('@{0}'.format(self.slack_user_1.username), MorningDigest(self.slack_user_1).channel_name)
 
-    def test_message(self):
-        self.assertEquals({
-            'username': 'Digest',
-        }, MorningDigest(self.slack_user_1).message)
-
-    def test_construct_attachments(self):
+    def _construct_message_kwargs(self):
         # Setup scenario
         md = MorningDigest(self.slack_user_1)
 
         # Run code
-        attachments = md._construct_attachments()
+        attachments = md._construct_message_kwargs()
 
         # Verify expectations
-        self.assertEquals([{
-            'text': 'Remember to post Standup in #engineering',
-        }], attachments)
+        self.assertEquals({
+            'username': 'Digest',
+            'attachments': json.dumps({
+                'text': 'Remember to post Standup in #engineering',
+            }),
+        }, attachments)
 
-    @patch.object(MorningDigest, '_construct_attachments', spec_set=True)
+    @patch.object(MorningDigest, '_construct_attachments', spec_set=True, return_value='fake-return')
     @patch.object(slack.chat, 'post_message', spec_set=True)
     def test_post_to_slack(self, post_message, construct_attachments):
         # Setup scenario
@@ -44,7 +44,8 @@ class MorningDigestTests(TestCase):
 
         # Verify expectations
         post_message.assert_called_once_with(
-            md.channel_name, md.message, attachments=construct_attachments.return_value)
+            md.channel_name, md.message, username='DigestBot',
+            attachments=json.dumps(construct_attachments.return_value))
 
     @patch.object(slack.chat, 'post_message', spec_set=True)
     def test_post_to_slack_gracefully_handles_none_slack_user(self, post_message):

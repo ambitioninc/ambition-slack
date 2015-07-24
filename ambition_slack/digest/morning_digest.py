@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -27,9 +28,7 @@ class MorningDigest(object):
 
     @property
     def message(self):
-        return {
-            'username': 'Digest',
-        }
+        return 'Good morning {0}'.format(self.slack_user.username)
 
     def _construct_attachments(self):
         """
@@ -40,6 +39,7 @@ class MorningDigest(object):
         # Add reminder to post scrum in #engineering
         attachments.append({
             'text': 'Remember to post Standup in #engineering',
+            'color': 'good',
         })
 
         # TODO: Add reminder about pending pull requests
@@ -47,6 +47,12 @@ class MorningDigest(object):
         # TODO: Add reminder about any all day events
 
         return attachments
+
+    def _construct_message_kwargs(self):
+        return {
+            'username': 'DigestBot',
+            'attachments': json.dumps(self._construct_attachments()),
+        }
 
     def post_to_slack(self):
         """
@@ -57,14 +63,13 @@ class MorningDigest(object):
             return
 
         # TODO: if the user is out of the office (check calendar) then don't post anything for them
-
         slack.chat.post_message(
-            self.channel_name, self.message, attachments=self._construct_attachments())
+            self.channel_name, self.message, **self._construct_message_kwargs())
 
 
 def send_digest_to_all_slack_users():
     """
     Create and post a morning digest for all slack users.
     """
-    for su in SlackUser.objects.filter(username='joshmarlow'):
+    for su in SlackUser.objects.all():
         MorningDigest(su).post_to_slack()
