@@ -71,5 +71,5 @@ def send_digest_to_all_slack_users():
     """
     Create and post a morning digest for all slack users.
     """
-    for su in SlackUser.objects.filter(username='joshmarlow'):
+    for su in SlackUser.objects.all():
         MorningDigest(su).post_to_slack()
