@@ -67,9 +67,26 @@ class MorningDigest(object):
             self.channel_name, self.message, **self._construct_message_kwargs())
 
 
+def get_digest_users():
+    """
+    Based on the DIGEST_USERS env variable, send morning digest to all users or a subset.
+    """
+    digest_users_env_val = os.environ['DIGEST_USERS']
+    slack_users = SlackUser.objects.all()
+
+    if digest_users_env_val != '*':
+        digest_user_list = digest_users_env_val.split(',')
+        slack_users = SlackUser.objects.filter(username__in=digest_user_list)
+
+        if slack_users.count() == 0:
+            LOG.warning('No slack users selected')
+
+    return slack_users
+
+
 def send_digest_to_all_slack_users():
     """
     Create and post a morning digest for all slack users.
     """
-    for su in SlackUser.objects.all():
+    for su in get_digest_users():
         MorningDigest(su).post_to_slack()

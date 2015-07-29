@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.test import TestCase
 from django_dynamic_fixture import G
@@ -61,9 +62,47 @@ class MorningDigestTests(TestCase):
         """
         Verify that we construct and send a digest to all slack users.
         """
+        # Setup scenario
         slack_user_2 = G(SlackUser)
+        os.environ['DIGEST_USERS'] = '*'
 
+        # Run code
         send_digest_to_all_slack_users()
 
+        # Verify expectations
         morning_digest.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
         self.assertEquals(2, morning_digest.return_value.post_to_slack.call_count)
+
+    @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
+    def test_send_digest_to_subset_of_slack_users(self, morning_digest):
+        """
+        Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
+        """
+        # Setup scenario
+        slack_user_2 = G(SlackUser)
+        G(SlackUser)
+        os.environ['DIGEST_USERS'] = ','.join([self.slack_user_1.username, slack_user_2.username])
+
+        # Run code
+        send_digest_to_all_slack_users()
+
+        # Verify expectations
+        morning_digest.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
+        self.assertEquals(2, morning_digest.return_value.post_to_slack.call_count)
+
+    @patch('ambition_slack.digest.morning_digest.LOG', spec_set=True)
+    @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
+    def test_send_digest_handles_invalid_env_var(self, morning_digest, log):
+        """
+        Verify that we gracefully handle a miconfigured digest_users variable.
+        """
+        # Setup scenario
+        os.environ['DIGEST_USERS'] = ''
+
+        # Run code
+        send_digest_to_all_slack_users()
+
+        # Verify expectations
+        self.assertFalse(morning_digest.called)
+        self.assertEquals(0, morning_digest.return_value.post_to_slack.call_count)
+        log.warning.assert_called_once_with('No slack users selected')
