@@ -18,7 +18,7 @@ class MorningDigestTests(TestCase):
     def test_channel_name(self):
         self.assertEquals('@{0}'.format(self.slack_user_1.username), MorningDigest(self.slack_user_1).channel_name)
 
-    def _construct_message_kwargs(self):
+    def test_construct_message_kwargs(self):
         # Setup scenario
         md = MorningDigest(self.slack_user_1)
 
@@ -27,10 +27,11 @@ class MorningDigestTests(TestCase):
 
         # Verify expectations
         self.assertEquals({
-            'username': 'Digest',
-            'attachments': json.dumps({
+            'username': 'DigestBot',
+            'attachments': json.dumps([{
+                'color': 'good',
                 'text': 'Remember to post Standup in #engineering',
-            }),
+            }]),
         }, attachments)
 
     @patch.object(MorningDigest, '_construct_attachments', spec_set=True, return_value='fake-return')
