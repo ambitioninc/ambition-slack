@@ -2,7 +2,6 @@ Django==1.7.9
 PyGithub==1.25.0
 South==1.0
 Werkzeug==0.9.6
-celery==3.1.18
 certifi==14.05.14
 coverage==3.7.1
 dj-database-url==0.2.2

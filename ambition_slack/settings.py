@@ -34,7 +34,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Application definition
 
 INSTALLED_APPS = (
-    'ambition_slack.celery',
     'ambition_slack.digest',
     'ambition_slack.github',
     'ambition_slack.pagerduty',
@@ -150,7 +149,3 @@ LOGGING = {
 
 # Testing
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-
-# Celery configuration
-BROKER_URL = os.environ['REDIS_URL']
-CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
