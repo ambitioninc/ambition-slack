@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 import os
@@ -5,6 +6,7 @@ import os
 import slack
 import slack.chat
 import slack.users
+from pytz import utc as utc_tz
 
 from ambition_slack.slack.models import SlackUser
 
@@ -19,18 +21,13 @@ class MorningDigest(object):
     """
     This class handles constructing and sending a morning digest customized for each developer.
     """
-    def __init__(self, slack_user):
-        self.slack_user = slack_user
+    def _build_channel_name(self, slack_user):
+        return '@{0}'.format(slack_user.username)
 
-    @property
-    def channel_name(self):
-        return '@{0}'.format(self.slack_user.username)
+    def _build_digest_message(self, slack_user):
+        return 'Good morning {0}'.format(slack_user.username)
 
-    @property
-    def message(self):
-        return 'Good morning {0}'.format(self.slack_user.username)
-
-    def _construct_attachments(self):
+    def _construct_attachments(self, slack_user):
         """
         Construct the actual digest content.
         """
@@ -48,23 +45,24 @@ class MorningDigest(object):
 
         return attachments
 
-    def _construct_message_kwargs(self):
+    def _construct_message_kwargs(self, slack_user):
         return {
             'username': 'DigestBot',
-            'attachments': json.dumps(self._construct_attachments()),
+            'attachments': json.dumps(self._construct_attachments(slack_user)),
         }
 
-    def post_to_slack(self):
+    def post_to_slack(self, slack_user):
         """
         Post the digest to slack.
         """
-        if not self.slack_user:
+        if not slack_user:
             LOG.error('post_to_slack called when slack_user = None')
             return
 
         # TODO: if the user is out of the office (check calendar) then don't post anything for them
         slack.chat.post_message(
-            self.channel_name, self.message, **self._construct_message_kwargs())
+            self._build_channel_name(slack_user), self._build_digest_message(slack_user),
+            **self._construct_message_kwargs(slack_user))
 
 
 def get_digest_users():
@@ -84,9 +82,22 @@ def get_digest_users():
     return slack_users
 
 
+def time_for_user_digest(slack_user):
+    """
+    One should only send a digest when the time is right in their timezone.
+    """
+    localtime = slack_user.time_zone.normalize(utc_tz.localize(datetime.utcnow()))
+
+    return localtime.hour == 10
+
+
 def send_digest_to_all_slack_users():
     """
     Create and post a morning digest for all slack users.
     """
     for su in get_digest_users():
-        MorningDigest(su).post_to_slack()
+        if time_for_user_digest(su):
+            try:
+                MorningDigest().post_to_slack(su)
+            except Exception as e:
+                LOG.error('Could not send digest to "{0}"; exception: {1}'.format(su.username, str(e)))
