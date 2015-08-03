@@ -1,12 +1,14 @@
+from datetime import datetime
 import json
 import os
 
 from django.test import TestCase
 from django_dynamic_fixture import G
+from freezegun import freeze_time
 from mock import call, patch
 import slack.users
 
-from ambition_slack.digest.morning_digest import MorningDigest, send_digest_to_all_slack_users
+from ambition_slack.digest.morning_digest import MorningDigest, send_digest_to_all_slack_users, time_for_user_digest
 from ambition_slack.slack.models import SlackUser
 
 
@@ -14,7 +16,7 @@ class MorningDigestTests(TestCase):
     def setUp(self):
         super(MorningDigestTests, self).setUp()
 
-        self.slack_user_1 = G(SlackUser)
+        self.slack_user_1 = G(SlackUser, time_zone='US/Eastern')
 
     def test_build_channel_name(self):
         self.assertEquals(
@@ -58,8 +60,17 @@ class MorningDigestTests(TestCase):
         # Verify expectations
         self.assertFalse(post_message.called)
 
+    @freeze_time(datetime(2015, 8, 3, 14))
+    def test_time_for_user_digest_returns_true(self):
+        self.assertTrue(time_for_user_digest(self.slack_user_1))
+
+    @freeze_time(datetime(2015, 8, 3, 13))
+    def test_time_for_user_digest_returns_false(self):
+        self.assertFalse(time_for_user_digest(self.slack_user_1))
+
+    @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
     @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
-    def test_send_digest_to_all_slack_users(self, post_to_slack):
+    def test_send_digest_to_all_slack_users(self, post_to_slack, time_for_user_digest):
         """
         Verify that we construct and send a digest to all slack users.
         """
@@ -74,8 +85,9 @@ class MorningDigestTests(TestCase):
         post_to_slack.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
         self.assertEquals(2, post_to_slack.call_count)
 
+    @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
     @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
-    def test_send_digest_to_subset_of_slack_users(self, post_to_slack):
+    def test_send_digest_to_subset_of_slack_users_based_on_env_var(self, post_to_slack, time_for_user_digest):
         """
         Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
         """
@@ -91,9 +103,32 @@ class MorningDigestTests(TestCase):
         post_to_slack.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
         self.assertEquals(2, post_to_slack.call_count)
 
+    @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
+    @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
+    def test_send_digest_to_subset_of_slack_users_based_on_tz(self, post_to_slack, time_for_user_digest):
+        """
+        Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
+        """
+        # Setup scenario
+        slack_user_2 = G(SlackUser)
+        os.environ['DIGEST_USERS'] = ','.join([self.slack_user_1.username, slack_user_2.username])
+
+        def side_effect(u):
+            # Only the first user is in the appropriate timezone
+            return (u == self.slack_user_1)
+
+        time_for_user_digest.side_effect = side_effect
+
+        # Run code
+        send_digest_to_all_slack_users()
+
+        # Verify expectations
+        post_to_slack.assert_called_once_with(self.slack_user_1)
+
+    @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
     @patch('ambition_slack.digest.morning_digest.LOG', spec_set=True)
     @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
-    def test_send_digest_handles_invalid_env_var(self, morning_digest, log):
+    def test_send_digest_handles_invalid_env_var(self, morning_digest, log, time_for_user_digest):
         """
         Verify that we gracefully handle a miconfigured digest_users variable.
         """

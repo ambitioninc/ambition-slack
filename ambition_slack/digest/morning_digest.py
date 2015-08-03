@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 import os
@@ -5,6 +6,7 @@ import os
 import slack
 import slack.chat
 import slack.users
+from pytz import utc as utc_tz
 
 from ambition_slack.slack.models import SlackUser
 
@@ -80,9 +82,19 @@ def get_digest_users():
     return slack_users
 
 
+def time_for_user_digest(slack_user):
+    """
+    One should only send a digest when the time is right in their timezone.
+    """
+    localtime = slack_user.time_zone.normalize(utc_tz.localize(datetime.utcnow()))
+
+    return localtime.hour == 10
+
+
 def send_digest_to_all_slack_users():
     """
     Create and post a morning digest for all slack users.
     """
     for su in get_digest_users():
-        MorningDigest().post_to_slack(su)
+        if time_for_user_digest(su):
+            MorningDigest().post_to_slack(su)
