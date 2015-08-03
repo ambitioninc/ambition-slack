@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 import dj_database_url
 import os
+import sys
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -135,11 +136,12 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+            'strm': sys.stdout,
         }
     },
     'loggers': {
-        'console_logger': {
+        '': {
             'handlers': ['console'],
             'level': 'INFO',
         }
