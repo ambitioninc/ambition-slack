@@ -142,3 +142,24 @@ class MorningDigestTests(TestCase):
         self.assertFalse(morning_digest.called)
         self.assertEquals(0, morning_digest.return_value.post_to_slack.call_count)
         log.warning.assert_called_once_with('No slack users selected')
+
+    @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
+    @patch('ambition_slack.digest.morning_digest.LOG', spec_set=True)
+    @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
+    def test_send_digest_handles_exception(self, morning_digest, log, time_for_user_digest):
+        """
+        Verify that we gracefully handle an exception when posting a digest.
+        """
+        # Setup scenario
+        os.environ['DIGEST_USERS'] = '*'
+        e = Exception()
+        morning_digest.return_value.post_to_slack.side_effect = e
+
+        # Run code
+        send_digest_to_all_slack_users()
+
+        # Verify expectations
+        self.assertTrue(morning_digest.called)
+        self.assertEquals(1, morning_digest.return_value.post_to_slack.call_count)
+        log.error.assert_called_once_with(
+            'Could not send digest to "{0}"; exception: {1}'.format(self.slack_user_1.username, str(e)))

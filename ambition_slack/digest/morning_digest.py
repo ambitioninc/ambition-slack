@@ -97,4 +97,7 @@ def send_digest_to_all_slack_users():
     """
     for su in get_digest_users():
         if time_for_user_digest(su):
-            MorningDigest().post_to_slack(su)
+            try:
+                MorningDigest().post_to_slack(su)
+            except Exception as e:
+                LOG.error('Could not send digest to "{0}"; exception: {1}'.format(su.username, str(e)))
