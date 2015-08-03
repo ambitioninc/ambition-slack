@@ -16,15 +16,16 @@ class MorningDigestTests(TestCase):
 
         self.slack_user_1 = G(SlackUser)
 
-    def test_channel_name(self):
-        self.assertEquals('@{0}'.format(self.slack_user_1.username), MorningDigest(self.slack_user_1).channel_name)
+    def test_build_channel_name(self):
+        self.assertEquals(
+            '@{0}'.format(self.slack_user_1.username), MorningDigest()._build_channel_name(self.slack_user_1))
 
     def test_construct_message_kwargs(self):
         # Setup scenario
-        md = MorningDigest(self.slack_user_1)
+        md = MorningDigest()
 
         # Run code
-        attachments = md._construct_message_kwargs()
+        attachments = md._construct_message_kwargs(self.slack_user_1)
 
         # Verify expectations
         self.assertEquals({
@@ -39,26 +40,26 @@ class MorningDigestTests(TestCase):
     @patch.object(slack.chat, 'post_message', spec_set=True)
     def test_post_to_slack(self, post_message, construct_attachments):
         # Setup scenario
-        md = MorningDigest(self.slack_user_1)
+        md = MorningDigest()
 
         # Run code
-        md.post_to_slack()
+        md.post_to_slack(self.slack_user_1)
 
         # Verify expectations
         post_message.assert_called_once_with(
-            md.channel_name, md.message, username='DigestBot',
-            attachments=json.dumps(construct_attachments.return_value))
+            md._build_channel_name(self.slack_user_1), md._build_digest_message(self.slack_user_1),
+            username='DigestBot', attachments=json.dumps(construct_attachments.return_value))
 
     @patch.object(slack.chat, 'post_message', spec_set=True)
     def test_post_to_slack_gracefully_handles_none_slack_user(self, post_message):
         # Run code
-        MorningDigest(None).post_to_slack()
+        MorningDigest().post_to_slack(None)
 
         # Verify expectations
         self.assertFalse(post_message.called)
 
-    @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
-    def test_send_digest_to_all_slack_users(self, morning_digest):
+    @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
+    def test_send_digest_to_all_slack_users(self, post_to_slack):
         """
         Verify that we construct and send a digest to all slack users.
         """
@@ -70,11 +71,11 @@ class MorningDigestTests(TestCase):
         send_digest_to_all_slack_users()
 
         # Verify expectations
-        morning_digest.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
-        self.assertEquals(2, morning_digest.return_value.post_to_slack.call_count)
+        post_to_slack.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
+        self.assertEquals(2, post_to_slack.call_count)
 
-    @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
-    def test_send_digest_to_subset_of_slack_users(self, morning_digest):
+    @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
+    def test_send_digest_to_subset_of_slack_users(self, post_to_slack):
         """
         Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
         """
@@ -87,8 +88,8 @@ class MorningDigestTests(TestCase):
         send_digest_to_all_slack_users()
 
         # Verify expectations
-        morning_digest.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
-        self.assertEquals(2, morning_digest.return_value.post_to_slack.call_count)
+        post_to_slack.assert_has_calls([call(self.slack_user_1), call(slack_user_2)], any_order=True)
+        self.assertEquals(2, post_to_slack.call_count)
 
     @patch('ambition_slack.digest.morning_digest.LOG', spec_set=True)
     @patch('ambition_slack.digest.morning_digest.MorningDigest', spec_set=True)
