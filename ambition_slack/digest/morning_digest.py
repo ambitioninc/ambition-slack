@@ -70,7 +70,7 @@ def get_digest_users():
     Based on the DIGEST_USERS env variable, send morning digest to all users or a subset.
     """
     digest_users_env_val = os.environ['DIGEST_USERS']
-    slack_users = SlackUser.objects.all()
+    slack_users = SlackUser.objects.filter(expects_morning_digest=True)
 
     if digest_users_env_val != '*':
         digest_user_list = digest_users_env_val.split(',')

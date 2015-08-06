@@ -7,6 +7,7 @@ class SlackUser(models.Model):
     username = models.TextField(unique=True)
     name = models.TextField()
     time_zone = TimeZoneField(default='US/Eastern')
+    expects_morning_digest = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.email

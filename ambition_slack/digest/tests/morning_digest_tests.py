@@ -8,7 +8,9 @@ from freezegun import freeze_time
 from mock import call, patch
 import slack.users
 
-from ambition_slack.digest.morning_digest import MorningDigest, send_digest_to_all_slack_users, time_for_user_digest
+from ambition_slack.digest.morning_digest import (
+    MorningDigest, get_digest_users, send_digest_to_all_slack_users, time_for_user_digest
+)
 from ambition_slack.slack.models import SlackUser
 
 
@@ -16,7 +18,7 @@ class MorningDigestTests(TestCase):
     def setUp(self):
         super(MorningDigestTests, self).setUp()
 
-        self.slack_user_1 = G(SlackUser, time_zone='US/Eastern')
+        self.slack_user_1 = G(SlackUser, time_zone='US/Eastern', expects_morning_digest=True)
 
     def test_build_channel_name(self):
         self.assertEquals(
@@ -68,6 +70,17 @@ class MorningDigestTests(TestCase):
     def test_time_for_user_digest_returns_false(self):
         self.assertFalse(time_for_user_digest(self.slack_user_1))
 
+    def test_get_digest_users(self):
+        """
+        Verify get_digest_users only returns users who expect a morning digest.
+        """
+        # Setup scenario
+        G(SlackUser, expects_morning_digest=False)
+        os.environ['DIGEST_USERS'] = '*'
+
+        # Run code and verify expectations
+        self.assertEquals([self.slack_user_1], list(get_digest_users()))
+
     @patch('ambition_slack.digest.morning_digest.time_for_user_digest', spec_set=True, return_value=True)
     @patch.object(MorningDigest, 'post_to_slack', spec_set=True)
     def test_send_digest_to_all_slack_users(self, post_to_slack, time_for_user_digest):
@@ -75,7 +88,7 @@ class MorningDigestTests(TestCase):
         Verify that we construct and send a digest to all slack users.
         """
         # Setup scenario
-        slack_user_2 = G(SlackUser)
+        slack_user_2 = G(SlackUser, expects_morning_digest=True)
         os.environ['DIGEST_USERS'] = '*'
 
         # Run code
@@ -92,8 +105,8 @@ class MorningDigestTests(TestCase):
         Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
         """
         # Setup scenario
-        slack_user_2 = G(SlackUser)
-        G(SlackUser)
+        slack_user_2 = G(SlackUser, expects_morning_digest=True)
+        G(SlackUser, expects_morning_digest=True)
         os.environ['DIGEST_USERS'] = ','.join([self.slack_user_1.username, slack_user_2.username])
 
         # Run code
@@ -110,7 +123,7 @@ class MorningDigestTests(TestCase):
         Verify that we construct and send a digest to only the slack users specified by DIGEST_USERS.
         """
         # Setup scenario
-        slack_user_2 = G(SlackUser)
+        slack_user_2 = G(SlackUser, expects_morning_digest=True)
         os.environ['DIGEST_USERS'] = ','.join([self.slack_user_1.username, slack_user_2.username])
 
         def side_effect(u):
