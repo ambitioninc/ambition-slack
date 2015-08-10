@@ -8,7 +8,7 @@ from mock import patch
 
 from ambition_slack.github.models import GithubUser
 from ambition_slack.slack.models import SlackUser
-from ambition_slack.github.views import GithubView
+from ambition_slack.github.views import GithubPayload, GithubView
 
 
 class GithubViewTest(TestCase):
@@ -40,6 +40,89 @@ class ModelsTest(TransactionTestCase):
         self.assertEquals(slack_user.__unicode__(), 'test_email')
 
 
+class GithubPayloadTests(TestCase):
+    def test_get_assignee(self):
+        payload = {
+            'pull_request': {
+                'assignee': {
+                    'login': 'jodything',
+                },
+            },
+        }
+        self.assertEqual('jodything', GithubPayload(payload).assignee_login)
+
+    def test_get_assignee_returns_none(self):
+        self.assertIsNone(GithubPayload({}).assignee_login)
+
+    def test_get_sender_login(self):
+        payload = {
+            'sender': {
+                'login': 'jodything',
+            },
+        }
+        self.assertEqual('jodything', GithubPayload(payload).sender_login)
+
+    def test_get_sender_login_returns_none(self):
+        self.assertIsNone(GithubPayload({}).sender_login)
+
+    def test_mentions_user_when_pull_request_mentions_user(self):
+        """
+        Verify that we detect when a user is mentioned in the pull request body.
+        """
+        payload = {
+            'pull_request': {
+                'body': '@jaredlewis please review',
+            },
+        }
+        self.assertTrue(GithubPayload(payload).mentions_user('jaredlewis'))
+
+    def test_mentions_user_when_comment_mentions_user(self):
+        """
+        Verify that we detect when a user is mentioned in a comment.
+        """
+        payload = {
+            'comment': {
+                'body': '@jaredlewis please review',
+            },
+        }
+        self.assertTrue(GithubPayload(payload).mentions_user('jaredlewis'))
+
+    def test_mentions_user_returns_false(self):
+        """
+        Verify that we detect when a user is not mentioned comment
+        """
+        payload = {
+            'comment': {
+                'body': '@jaredlewis please review',
+            },
+        }
+        self.assertFalse(GithubPayload(payload).mentions_user('haha-i-*never*-exist'))
+
+    def test_pull_request_html_url(self):
+        payload = {
+            'pull_request': {
+                'html_url': 'http://if-only-i-existed.com',
+            },
+        }
+        self.assertTrue(payload['pull_request']['html_url'], GithubPayload(payload).pull_request_html_url)
+
+    def test_pull_request_html_url_returns_none(self):
+        self.assertIsNone(GithubPayload({}).pull_request_html_url)
+
+    def test_pull_request_comment(self):
+        payload = {
+            'issue': {
+                'pull_request': {
+                    'html_url': 'http://if-only-i-existed.com',
+                },
+            },
+        }
+        self.assertTrue(payload['issue']['pull_request']['html_url'], GithubPayload(payload).pull_request_comment)
+
+    def test_pull_request_comment_returns_none(self):
+        self.assertIsNone(GithubPayload({}).pull_request_comment)
+
+
 # ___________View Tests_______________
 
 class TestGithubViews(TestCase):
@@ -54,19 +137,6 @@ class TestGithubViews(TestCase):
         response = self.client.get('/github/')
         self.assertEqual(response.content, 'Github')
 
-    def test_no_get_assignee(self):
-        payload = {'pull_request': {'assignee': None}}
-        self.assertEquals(None, GithubView().get_assignee(payload))
-
-    def test_get_assignee_no_github_user(self):
-        payload = {'pull_request': {'assignee': {'login': 'jodything'}}}
-        self.assertEqual(None, GithubView().get_assignee(payload))
-
-    def test_get_assignee_w_github_user(self):
-        github_user = G(GithubUser, username='jodything')
-        payload = {'pull_request': {'assignee': {'login': 'jodything'}}}
-        self.assertEqual(github_user, GithubView().get_assignee(payload))
-
     def test_handle_pull_request_repo_action_no_call(self):
         G(
             GithubUser, username='jodything',
@@ -74,7 +144,7 @@ class TestGithubViews(TestCase):
         payload = {'sender': {'login': 'jodything'},
                    'pull_request': {'assignee': {'login': 'jodything'}},
                    'action': None}
-        self.assertFalse(None, GithubView().handle_pull_request_repo_action(payload))
+        self.assertFalse(None, GithubView().handle_pull_request_repo_action(GithubPayload(payload)))
 
     @patch('ambition_slack.github.views.slack', spec_set=True)
     def test_post_pull_request_action_opened_assigned(self, slack):
