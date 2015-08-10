@@ -11,8 +11,10 @@ from pytz import utc as utc_tz
 from ambition_slack.slack.models import SlackUser
 
 
-LOG = logging.getLogger(__name__)
+# The time (in user local timezone) to send the morning digest
+DIGEST_HOUR = 10
 
+LOG = logging.getLogger(__name__)
 
 slack.api_token = os.environ['SLACK_API_TOKEN']
 
@@ -82,13 +84,21 @@ def get_digest_users():
     return slack_users
 
 
+def is_weekend(localtime):
+    return localtime.weekday() in [5, 6]
+
+
+def is_digest_hour(localtime):
+    return localtime.hour == DIGEST_HOUR
+
+
 def time_for_user_digest(slack_user):
     """
     One should only send a digest when the time is right in their timezone.
     """
     localtime = slack_user.time_zone.normalize(utc_tz.localize(datetime.utcnow()))
 
-    return localtime.hour == 10
+    return not is_weekend(localtime) and is_digest_hour(localtime)
 
 
 def send_digest_to_all_slack_users():

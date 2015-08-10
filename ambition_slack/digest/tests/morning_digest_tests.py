@@ -70,6 +70,10 @@ class MorningDigestTests(TestCase):
     def test_time_for_user_digest_returns_false(self):
         self.assertFalse(time_for_user_digest(self.slack_user_1))
 
+    @freeze_time(datetime(2015, 8, 9, 14))
+    def test_time_for_user_digest_returns_false_on_weekends(self):
+        self.assertFalse(time_for_user_digest(self.slack_user_1))
+
     def test_get_digest_users(self):
         """
         Verify get_digest_users only returns users who expect a morning digest.
