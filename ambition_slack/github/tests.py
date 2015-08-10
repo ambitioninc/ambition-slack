@@ -8,7 +8,8 @@ from mock import patch
 
 from ambition_slack.github.models import GithubUser
 from ambition_slack.slack.models import SlackUser
-from ambition_slack.github.views import GithubPayload, GithubView
+from ambition_slack.github.payload import GithubPayload
+from ambition_slack.github.views import GithubView
 
 
 class GithubViewTest(TestCase):
