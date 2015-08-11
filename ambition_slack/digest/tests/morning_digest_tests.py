@@ -5,12 +5,13 @@ import os
 from django.test import TestCase
 from django_dynamic_fixture import G
 from freezegun import freeze_time
-from mock import call, patch
+from mock import call, Mock, patch
 import slack.users
 
 from ambition_slack.digest.morning_digest import (
     MorningDigest, get_digest_users, send_digest_to_all_slack_users, time_for_user_digest
 )
+from ambition_slack.github.models import GithubUser
 from ambition_slack.slack.models import SlackUser
 
 
@@ -24,9 +25,16 @@ class MorningDigestTests(TestCase):
         self.assertEquals(
             '@{0}'.format(self.slack_user_1.username), MorningDigest()._build_channel_name(self.slack_user_1))
 
-    def test_construct_message_kwargs(self):
+    @patch('ambition_slack.digest.morning_digest.fetch_pull_requests_with_mention', spec_set=True)
+    @patch('ambition_slack.digest.morning_digest.fetch_assigned_pull_requests', spec_set=True)
+    def test_construct_message_kwargs(self, fetch_assigned_pull_requests, fetch_pull_requests_with_mention):
         # Setup scenario
         md = MorningDigest()
+        G(GithubUser, slack_user=self.slack_user_1)
+        mock_assigned_issue = Mock(pull_request_link='assigned-link', title='assigned-title')
+        mock_issue_with_mention = Mock(pull_request_link='mention-link', title='mention-title')
+        fetch_assigned_pull_requests.return_value = [mock_assigned_issue]
+        fetch_pull_requests_with_mention.return_value = [mock_issue_with_mention]
 
         # Run code
         attachments = md._construct_message_kwargs(self.slack_user_1)
@@ -34,10 +42,32 @@ class MorningDigestTests(TestCase):
         # Verify expectations
         self.assertEquals({
             'username': 'DigestBot',
-            'attachments': json.dumps([{
-                'color': 'good',
-                'text': 'Remember to post Standup in #engineering',
-            }]),
+            'attachments': json.dumps([
+                {
+                    'color': 'good',
+                    'text': 'Remember to post Standup in #engineering',
+                },
+                {
+                    'text': 'Assigned pull requests',
+                    'color': 'good',
+                    'fields': [
+                        {
+                            'title': mock_assigned_issue.title,
+                            'value': mock_assigned_issue.pull_request_link,
+                        }
+                    ],
+                },
+                {
+                    'text': '@mentions',
+                    'color': 'good',
+                    'fields': [
+                        {
+                            'title': mock_issue_with_mention.title,
+                            'value': mock_issue_with_mention.pull_request_link,
+                        }
+                    ],
+                }
+            ]),
         }, attachments)
 
     @patch.object(MorningDigest, '_construct_attachments', spec_set=True, return_value='fake-return')
