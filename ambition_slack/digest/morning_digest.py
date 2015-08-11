@@ -5,9 +5,9 @@ import os
 
 import slack
 import slack.chat
-import slack.users
 from pytz import utc as utc_tz
 
+from ambition_slack.github.issue import fetch_assigned_pull_requests, fetch_pull_requests_with_mention
 from ambition_slack.slack.models import SlackUser
 
 
@@ -41,7 +41,29 @@ class MorningDigest(object):
             'color': 'good',
         })
 
-        # TODO: Add reminder about pending pull requests
+        # Add reminders about open pull requests
+        attachments.append({
+            'text': 'Assigned pull requests',
+            'color': 'good',
+            'fields': [
+                {
+                    'title': issue.title,
+                    'value': issue.pull_request_link,
+                }
+                for issue in fetch_assigned_pull_requests(slack_user.github_user)
+            ]
+        })
+        attachments.append({
+            'text': '@mentions',
+            'color': 'good',
+            'fields': [
+                {
+                    'title': issue.title,
+                    'value': issue.pull_request_link,
+                }
+                for issue in fetch_pull_requests_with_mention(slack_user.github_user)
+            ]
+        })
 
         # TODO: Add reminder about any all day events
 
