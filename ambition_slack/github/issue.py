@@ -1,6 +1,10 @@
 import base64
+import logging
 
 import requests
+
+
+LOG = logging.getLogger(__name__)
 
 
 class GithubIssue(object):
@@ -33,7 +37,11 @@ def _build_auth_header(github_user):
 def _fetch_issues(github_user, filter_str):
     api_call = 'https://api.github.com/issues?filter={0}'.format(filter_str)
 
-    return [GithubIssue(issue) for issue in requests.get(api_call, headers=_build_auth_header(github_user)).json()]
+    try:
+        return [GithubIssue(issue) for issue in requests.get(api_call, headers=_build_auth_header(github_user)).json()]
+    except Exception as e:
+        LOG.error('Cannot fetch issues.  filter: "{0}", exception: "{1}"'.format(filter_str, str(e)))
+        return []
 
 
 def fetch_assigned_pull_requests(github_user):

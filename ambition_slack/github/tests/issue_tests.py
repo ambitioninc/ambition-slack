@@ -3,7 +3,7 @@ from mock import patch
 import requests
 
 from ambition_slack.github.issue import (
-    _build_auth_header, fetch_assigned_pull_requests, fetch_pull_requests_with_mention, GithubIssue
+    _build_auth_header, _fetch_issues, fetch_assigned_pull_requests, fetch_pull_requests_with_mention, GithubIssue
 )
 from ambition_slack.github.models import GithubUser
 
@@ -43,6 +43,22 @@ class BuildAuthHeaderTests(TestCase):
 
 
 class FetchIssuesTests(TestCase):
+    @patch('ambition_slack.github.issue.LOG', spec_set=True)
+    @patch.object(requests, 'get', spec_set=True)
+    def test_fetch_issues_handles_error(self, get, log):
+        # Setup scenario
+        github_user = GithubUser(username='billy', api_token='secret')
+        e = Exception()
+        get.side_effect = e
+        filter_str = 'mentioned'
+
+        # Run code
+        self.assertEquals([], _fetch_issues(github_user, filter_str))
+
+        # Verify expectations
+        log.error.assert_called_once_with(
+            'Cannot fetch issues.  filter: "{0}", exception: "{1}"'.format(filter_str, str(e)))
+
     @patch.object(requests, 'get', spec_set=True)
     def test_fetch_assigned_pull_requests(self, get):
         # Setup scenario
