@@ -7,7 +7,7 @@ class GithubPayload(object):
 
     @property
     def action(self):
-        return self.message_dict['action']
+        return self.message_dict.get('action')
 
     @property
     def assignee_login(self):
